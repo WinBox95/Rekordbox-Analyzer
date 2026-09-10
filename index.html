@@ -1,0 +1,3727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WINBOX 95 - Rekordbox XML</title>
+  <style>
+    :root {
+      --w95-bg: #0b0e14;
+      --w95-chassis: #141923;
+      --w95-chassis-light: #1e2636;
+      --w95-bevel-light: #2b364c;
+      --w95-bevel-dark: #070a0f;
+      --w95-inset-bg: #04070a;
+      --matrix-green: #00ff66;
+      --matrix-green-glow: rgba(0, 255, 102, 0.35);
+      --cyber-cyan: #00f0ff;
+      --cyber-cyan-glow: rgba(0, 240, 255, 0.35);
+      --winamp-amber: #ffaa00;
+      --winamp-red: #ff3344;
+      --text-main: #d0dae8;
+      --text-dim: #62728c;
+      --font-mono: 'Consolas', 'Courier New', 'Lucida Console', monospace;
+      --font-ui: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--w95-bg);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      line-height: 1.4;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--w95-inset-bg);
+      border: 1px solid var(--w95-bevel-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2636;
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #283348;
+    }
+
+    /* Win95 Raised Window Chassis */
+    .w95-window {
+      background: var(--w95-chassis);
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    .w95-inset {
+      background: var(--w95-inset-bg);
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+    }
+
+    /* Titlebars */
+    .w95-titlebar {
+      background: linear-gradient(90deg, #092c48 0%, #104168 50%, #151922 100%);
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      border-bottom: 1px solid var(--w95-bevel-dark);
+    }
+
+    .w95-title {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 6px var(--cyber-cyan-glow);
+    }
+
+    .w95-title span {
+      color: var(--cyber-cyan);
+    }
+
+    .w95-window-controls {
+      display: flex;
+      gap: 4px;
+    }
+
+    .w95-btn-box {
+      width: 18px;
+      height: 18px;
+      background: #1c2331;
+      border: 1px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 16px;
+      text-align: center;
+      cursor: pointer;
+    }
+    .w95-btn-box:hover {
+      background: #2b364c;
+      color: var(--cyber-cyan);
+    }
+
+    /* Buttons (Beveled 3D) */
+    .btn-w95 {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #181f2c;
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      box-shadow: 1px 1px 0px #000;
+      transition: none;
+      white-space: nowrap;
+    }
+
+    .btn-w95:hover {
+      background: #222b3d;
+      color: var(--cyber-cyan);
+    }
+
+    .btn-w95:active {
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      background: #10141d;
+      transform: translate(1px, 1px);
+      box-shadow: none;
+    }
+
+    .btn-green {
+      color: var(--matrix-green);
+      border-color: #1e442d #0a1f14 #0a1f14 #1e442d;
+    }
+    .btn-green:hover {
+      background: #0f271a;
+      color: #33ff88;
+      box-shadow: 0 0 10px var(--matrix-green-glow);
+    }
+
+    .btn-cyan {
+      color: var(--cyber-cyan);
+      border-color: #1a3c4f #091720 #091720 #1a3c4f;
+    }
+    .btn-cyan:hover {
+      background: #0d222e;
+      color: #4df3ff;
+      box-shadow: 0 0 10px var(--cyber-cyan-glow);
+    }
+
+    .btn-amber {
+      color: var(--winamp-amber);
+    }
+
+    .btn-sm {
+      padding: 3px 8px;
+      font-size: 11px;
+    }
+
+    /* Main Container */
+    .app-container {
+      max-width: 1680px;
+      margin: 0 auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Header Nav */
+    header {
+      background: var(--w95-chassis);
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    .header-content {
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-title {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-title span {
+      color: var(--matrix-green);
+      text-shadow: 0 0 8px var(--matrix-green-glow);
+    }
+
+    .led-indicator {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--matrix-green);
+      box-shadow: 0 0 8px var(--matrix-green);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* Streamlined Minimal Dropzone */
+    .dropzone-terminal {
+      background: var(--w95-inset-bg);
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      padding: 18px 24px;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .dropzone-terminal:hover {
+      border-color: var(--cyber-cyan);
+    }
+
+    .dropzone-terminal.dragover {
+      border-color: var(--matrix-green);
+      background: rgba(0, 255, 102, 0.04);
+      box-shadow: inset 0 0 20px var(--matrix-green-glow);
+    }
+
+    .dropzone-text {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .dropzone-text strong {
+      color: var(--cyber-cyan);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    /* Winamp / CDJ Waveform Deck */
+    .winamp-deck {
+      background: var(--w95-chassis);
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      padding: 12px;
+      box-shadow: 2px 2px 0px #000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Winamp Top LCD Display */
+    .lcd-screen {
+      background: #020508;
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      position: relative;
+      box-shadow: inset 0 0 12px rgba(0, 240, 255, 0.15);
+    }
+
+    /* CRT Scanline effect */
+    .lcd-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.25),
+        rgba(0, 0, 0, 0.25) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .lcd-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-width: 500px;
+      overflow: hidden;
+    }
+
+    .lcd-track-title {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.5px;
+    }
+
+    .lcd-track-meta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--matrix-green);
+      letter-spacing: 0.5px;
+    }
+
+    .lcd-clock-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .lcd-digital-clock {
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--matrix-green);
+      text-shadow: 0 0 10px var(--matrix-green-glow);
+      letter-spacing: 2px;
+      background: rgba(0, 255, 102, 0.05);
+      padding: 2px 10px;
+      border: 1px solid rgba(0, 255, 102, 0.2);
+    }
+
+    .audio-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border: 1px solid;
+    }
+    .badge-real {
+      color: var(--matrix-green);
+      background: rgba(0, 255, 102, 0.1);
+      border-color: var(--matrix-green);
+      text-shadow: 0 0 6px var(--matrix-green-glow);
+    }
+    .badge-standby {
+      color: var(--winamp-amber);
+      background: rgba(255, 170, 0, 0.1);
+      border-color: var(--winamp-amber);
+    }
+
+    /* Waveform Canvas Box */
+    .waveform-box {
+      position: relative;
+      height: 120px;
+      background: #03060a;
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      cursor: crosshair;
+      user-select: none;
+    }
+
+    #waveformCanvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    /* Deck Controls Bar */
+    .deck-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 4px;
+    }
+
+    .transport-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .faders-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .fader-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fader-item input[type="range"] {
+      width: 90px;
+      accent-color: var(--cyber-cyan);
+      cursor: pointer;
+    }
+
+    /* Stats Grid */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--w95-chassis);
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+    }
+
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--matrix-green);
+      text-shadow: 0 0 8px var(--matrix-green-glow);
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+
+    /* Charts Row */
+    .analytics-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .analytics-row { grid-template-columns: 1fr; }
+    }
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      height: 180px;
+    }
+
+    /* Main Workspace Layout */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 440px;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 1250px) {
+      .workspace-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Library Toolbar */
+    .table-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--w95-inset-bg);
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      padding: 7px 10px 7px 32px;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      outline: none;
+    }
+    .search-box input:focus {
+      border-color: var(--cyber-cyan);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      fill: var(--text-dim);
+      pointer-events: none;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    select.filter-select {
+      background: var(--w95-inset-bg);
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      padding: 6px 8px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      outline: none;
+      cursor: pointer;
+    }
+    select.filter-select:focus {
+      border-color: var(--cyber-cyan);
+    }
+
+    /* Table */
+    .table-wrapper {
+      background: var(--w95-inset-bg);
+      border: 2px solid;
+      border-color: var(--w95-bevel-dark) var(--w95-bevel-light) var(--w95-bevel-light) var(--w95-bevel-dark);
+      overflow-x: auto;
+      max-height: calc(100vh - 330px);
+      min-height: 480px;
+    }
+
+    table.tracks-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    table.tracks-table th {
+      background: #19202c;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 8px 10px;
+      border-bottom: 2px solid var(--w95-bevel-light);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      white-space: nowrap;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    table.tracks-table th:hover {
+      color: var(--cyber-cyan);
+    }
+
+    table.tracks-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #131923;
+      color: var(--text-main);
+      white-space: nowrap;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    table.tracks-table tr {
+      cursor: pointer;
+    }
+    table.tracks-table tr:hover {
+      background: rgba(0, 240, 255, 0.05);
+    }
+    table.tracks-table tr.selected {
+      background: rgba(0, 255, 102, 0.12);
+      border-left: 3px solid var(--matrix-green);
+    }
+
+    /* Badges */
+    .badge-bpm {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .badge-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      font-weight: 700;
+      font-size: 11px;
+      color: #fff;
+      font-family: var(--font-mono);
+    }
+
+    .key-1 { background: #2563eb; }
+    .key-2 { background: #0891b2; }
+    .key-3 { background: #059669; }
+    .key-4 { background: #65a30d; }
+    .key-5 { background: #ca8a04; }
+    .key-6 { background: #ea580c; }
+    .key-7 { background: #dc2626; }
+    .key-8 { background: #db2777; }
+    .key-9 { background: #c026d3; }
+    .key-10 { background: #9333ea; }
+    .key-11 { background: #7c3aed; }
+    .key-12 { background: #4f46e5; }
+
+    .tag-interactive {
+      background: #131a26;
+      border: 1px solid #232d3f;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      cursor: pointer;
+      display: inline-block;
+    }
+    .tag-interactive:hover {
+      border-color: var(--cyber-cyan);
+      color: var(--cyber-cyan);
+    }
+
+    /* Inspector */
+    .inspector-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: sticky;
+      top: 80px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+
+    .chords-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .chord-pill {
+      background: rgba(0, 255, 102, 0.08);
+      border: 1px solid rgba(0, 255, 102, 0.3);
+      color: var(--matrix-green);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 2px 6px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chord-pill:hover {
+      background: rgba(0, 255, 102, 0.2);
+      border-color: var(--matrix-green);
+    }
+
+    .chord-pill svg {
+      width: 9px;
+      height: 9px;
+      fill: currentColor;
+    }
+
+    /* Blend List */
+    .blend-tabs {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .blend-tab {
+      background: #181f2c;
+      border: 1px solid var(--w95-bevel-light);
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+    .blend-tab.active {
+      border-color: var(--matrix-green);
+      color: var(--matrix-green);
+      background: rgba(0, 255, 102, 0.1);
+    }
+
+    .blend-candidates-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .blend-card {
+      background: var(--w95-inset-bg);
+      border: 1px solid #1c2534;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .blend-card:hover {
+      border-color: var(--cyber-cyan);
+    }
+
+    /* Modals */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal-window {
+      background: var(--w95-chassis);
+      border: 2px solid;
+      border-color: var(--w95-bevel-light) var(--w95-bevel-dark) var(--w95-bevel-dark) var(--w95-bevel-light);
+      width: 100%;
+      max-width: 900px;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 4px 4px 0px #000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .empty-state {
+      padding: 30px 16px;
+      text-align: center;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    footer {
+      border-top: 1px solid var(--w95-bevel-dark);
+      padding: 16px;
+      text-align: center;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Mobile & iPhone 17 Responsive Styles */
+    @media (max-width: 768px) {
+      .app-container {
+        padding: 8px;
+        gap: 8px;
+      }
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+        padding: 8px;
+      }
+      .header-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        width: 100%;
+      }
+      .dropzone-terminal {
+        flex-direction: column;
+        padding: 12px;
+        text-align: center;
+        gap: 6px;
+      }
+      .dropzone-text {
+        font-size: 11px;
+        gap: 8px;
+      }
+      .lcd-screen {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 8px 10px;
+        gap: 8px;
+      }
+      .lcd-clock-group {
+        justify-content: space-between;
+        width: 100%;
+      }
+      .lcd-digital-clock {
+        font-size: 20px;
+        padding: 2px 6px;
+      }
+      .waveform-box {
+        height: 100px;
+      }
+      .deck-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+      .transport-group {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr;
+        gap: 4px;
+        width: 100%;
+      }
+      .faders-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+      }
+      .fader-item {
+        justify-content: space-between;
+      }
+      .fader-item input[type="range"] {
+        flex: 1;
+        width: auto;
+      }
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .mobile-view-tabs {
+        display: flex !important;
+      }
+      .inspector-panel {
+        position: static;
+        max-height: none;
+      }
+      .table-wrapper {
+        max-height: calc(100vh - 380px);
+        min-height: 360px;
+        -webkit-overflow-scrolling: touch;
+      }
+      table.tracks-table th, table.tracks-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio Element -->
+  <audio id="audioPlayer" preload="auto"></audio>
+
+  <!-- App Wrapper -->
+  <div class="app-container">
+
+    <!-- Top Header -->
+    <header>
+      <div class="w95-titlebar">
+        <div class="w95-title">
+          <span class="led-indicator"></span>
+          <span>WINBOX 95</span> // Rekordbox XML
+        </div>
+        <div class="w95-window-controls">
+          <div class="w95-btn-box">_</div>
+          <div class="w95-btn-box">□</div>
+          <div class="w95-btn-box" onclick="location.reload()">X</div>
+        </div>
+      </div>
+
+      <div class="header-content">
+        <div class="brand-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--matrix-green)"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+          WINBOX 95 <span style="color: var(--text-dim); font-size: 11px; font-weight: normal; margin-left: 6px;">[Rekordbox XML Compatibility]</span>
+        </div>
+
+        <!-- Streamlined Action Buttons (Consolidated) -->
+        <div class="header-actions">
+          <button class="btn-w95 btn-cyan" onclick="document.getElementById('fileInput').click()" title="Open your Rekordbox XML collection file">
+            📂 Load XML
+          </button>
+          <button class="btn-w95 btn-green" onclick="document.getElementById('musicFolderInput').click()" title="Select your music directory to link real audio">
+            📁 Music Folder
+          </button>
+          <button class="btn-w95" id="matchSummaryBtn" onclick="openMatchOverviewModal()" title="Inspect audio match telemetry">
+            📊 Status: <span id="matchSummaryBadge" style="color: var(--matrix-green);">0/0</span>
+          </button>
+          <button class="btn-w95 btn-amber" id="queueBtn" onclick="openSetlistModal()" title="Inspect live setlist queue">
+            📋 Setlist (<span id="queueCount">0</span>)
+          </button>
+          <button class="btn-w95 btn-sm" onclick="loadDemoLibrary()" title="Load test collection">
+            ⚡ Demo
+          </button>
+
+          <!-- Hidden File Inputs -->
+          <input type="file" id="fileInput" accept=".xml" />
+          <input type="file" id="musicFolderInput" webkitdirectory directory multiple />
+          <input type="file" id="singleAudioInput" accept="audio/*,.wav,.mp3,.flac,.aif,.aiff" />
+        </div>
+      </div>
+    </header>
+
+    <!-- Streamlined Minimal Terminal Dropzone -->
+    <div class="dropzone-terminal" id="dropZone" onclick="document.getElementById('fileInput').click()">
+      <div class="dropzone-text">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--matrix-green)"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+        <span>[ ░▒▓ <strong>DROP REKORDBOX.XML OR AUDIO FILES HERE</strong> ▓▒░ ]</span>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);" id="dropzoneStatus">
+        Ready for import • Click to browse
+      </div>
+    </div>
+
+    <!-- Winamp / CDJ Waveform Player Deck -->
+    <div class="winamp-deck" id="waveformDeck" style="display: none;">
+      <div class="w95-titlebar" style="background: #111622;">
+        <div class="w95-title" style="font-size: 11px;">
+          <span style="color: var(--cyber-cyan);">DECK A // REKORDBOX AUDIO ENGINE</span>
+        </div>
+        <span class="audio-badge badge-standby" id="audioSourceBadge">STANDBY PREVIEW</span>
+      </div>
+
+      <!-- Winamp LCD Display -->
+      <div class="lcd-screen">
+        <div class="lcd-title-group">
+          <div class="lcd-track-title" id="deckTrackTitle">SELECT A TRACK</div>
+          <div class="lcd-track-meta" id="deckTrackArtist">44.1 KHZ • 16-BIT STEREO PCM</div>
+        </div>
+
+        <div class="lcd-clock-group">
+          <button class="btn-w95 btn-sm" onclick="playHarmonicSynth()" title="Play root frequency sub tone and diatonic chord">
+            🎹 Key Synth
+          </button>
+          <div class="lcd-digital-clock" id="timeElapsed">00:00.0</div>
+          <div style="font-family: var(--font-mono); font-size: 12px; color: var(--cyber-cyan);" id="timeRemain">-00:00.0</div>
+        </div>
+      </div>
+
+      <!-- Waveform Canvas Box -->
+      <div class="waveform-box" id="waveformWrapper" onclick="handleWaveformSeek(event)" title="Click anywhere to seek">
+        <canvas id="waveformCanvas"></canvas>
+      </div>
+
+      <!-- Deck Controls Bar -->
+      <div class="deck-bar">
+        <div class="transport-group">
+          <button class="btn-w95 btn-green" id="deckPlayBtn" onclick="togglePlayPause()" style="padding: 6px 14px; font-size: 13px;">
+            <span id="playIcon">▶ PLAY</span>
+            <span id="pauseIcon" style="display:none;">⏸ PAUSE</span>
+          </button>
+          <button class="btn-w95" onclick="cueTrack()">⏹ CUE</button>
+          <button class="btn-w95 btn-sm" id="loop4Btn" onclick="toggleLoop(4)">Loop 4</button>
+          <button class="btn-w95 btn-sm" id="loop8Btn" onclick="toggleLoop(8)">Loop 8</button>
+          <button class="btn-w95 btn-cyan btn-sm" id="colorModeBtn" onclick="toggleWaveformColorMode()" title="Toggle Waveform Color: Pioneer Rekordbox RGB / CDJ-3000 3Band / Blue">COLOR: RGB</button>
+        </div>
+
+        <!-- Faders (Pitch + Volume with RESET 0% button) -->
+        <div class="faders-group">
+          <div class="fader-item">
+            <span>PITCH: <strong id="pitchValue" style="color: var(--cyber-cyan); min-width: 48px; display: inline-block;">+0.0%</strong></span>
+            <input type="range" id="pitchSlider" min="-16" max="16" step="0.1" value="0" oninput="onPitchChange(this.value)" ondblclick="resetPitch()" title="Slide to adjust pitch, double-click to reset" />
+            <button class="btn-w95 btn-green btn-sm" id="pitchResetBtn" onclick="resetPitch()" title="Pioneer CDJ Style Tempo Reset">
+              RESET 0%
+            </button>
+          </div>
+          <div class="fader-item">
+            <span>VOL: <strong id="volValue" style="color: var(--matrix-green); min-width: 32px; display: inline-block;">80%</strong></span>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.8" oninput="onVolumeChange(this.value)" title="Master Volume Fader" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact Telemetry Bar (Zero wasted vertical space) -->
+    <div class="w95-window" id="statsRow" style="display: none; padding: 6px 12px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-family: var(--font-mono); font-size: 11px;">
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
+          <div>TRACKS: <strong style="color: var(--matrix-green);" id="statTracks">0</strong> (<span id="statPlaytime" style="color: var(--text-dim);">0 hrs</span>)</div>
+          <div>BPM RANGE: <strong style="color: var(--cyber-cyan);" id="statBpmRange">0-0</strong> (<span id="statAvgBpm" style="color: var(--text-dim);">Avg 0</span>)</div>
+          <div>ARTISTS: <strong style="color: #fff;" id="statArtists">0</strong> (<span id="statTopArtist" style="color: var(--text-dim);">-</span>)</div>
+          <div>LABELS: <strong style="color: #fff;" id="statLabels">0</strong> (<span id="statTopLabel" style="color: var(--text-dim);">-</span>)</div>
+          <div>DOMINANT KEY: <strong style="color: var(--winamp-amber);" id="statTopKey">-</strong> (<span id="statMinorPct" style="color: var(--text-dim);">0% Min</span>)</div>
+        </div>
+        <button class="btn-w95 btn-sm" id="toggleAnalyticsBtn" onclick="toggleAnalyticsDrawer()" title="Expand / Collapse BPM Histogram and Camelot Wheel">
+          📊 SHOW CHARTS ▼
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Charts Drawer (Hidden by default so library is immediately visible without scrolling!) -->
+    <div class="analytics-row" id="analyticsRow" style="display: none; margin-bottom: 6px;">
+      <div class="w95-window">
+        <div class="w95-titlebar">
+          <div class="w95-title"><span>SPECTRUM</span> // BPM DISTRIBUTION</div>
+          <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);">60-180 BPM</span>
+        </div>
+        <div class="chart-container" style="padding: 8px;">
+          <canvas id="bpmChart"></canvas>
+        </div>
+      </div>
+
+      <div class="w95-window">
+        <div class="w95-titlebar">
+          <div class="w95-title"><span>CAMELOT</span> // HARMONIC CLOCK</div>
+          <span style="font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);">1A-12B</span>
+        </div>
+        <div class="chart-container" style="padding: 8px;">
+          <canvas id="camelotChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile View Switcher Tabs (iPhone & Mobile Viewport) -->
+    <div class="mobile-view-tabs" id="mobileViewTabs" style="display: none; gap: 4px; margin-bottom: 6px;">
+      <button class="btn-w95 btn-cyan btn-sm" id="mobTabTracks" onclick="switchMobileTab('tracks')" style="flex: 1;">📂 TRACKS</button>
+      <button class="btn-w95 btn-sm" id="mobTabInspector" onclick="switchMobileTab('inspector')" style="flex: 1;">🔍 INSPECTOR</button>
+      <button class="btn-w95 btn-sm" id="mobTabBlends" onclick="switchMobileTab('blends')" style="flex: 1;">🎛 BLENDS (<span id="mobBlendCount">0</span>)</button>
+    </div>
+
+    <!-- Main Workspace (Table + Inspector) -->
+    <div class="workspace-grid" id="workspaceGrid" style="display: none;">
+      
+      <!-- Left Table -->
+      <div class="w95-window" style="padding: 10px;">
+        <div class="table-toolbar">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            <input type="text" id="searchInput" placeholder="SEARCH TITLE, ARTIST, GENRE, LABEL, KEY, BPM..." />
+          </div>
+          <div class="filter-group">
+            <select class="filter-select" id="genreFilter"><option value="">All Genres</option></select>
+            <select class="filter-select" id="keyFilter"><option value="">All Keys</option></select>
+            <select class="filter-select" id="tempoFilter">
+              <option value="">All Tempos</option>
+              <option value="halftime">Halftime (60-95)</option>
+              <option value="house">House/Tech (120-132)</option>
+              <option value="dubstep">Dubstep/Grime (136-145)</option>
+              <option value="phonk">Phonk/Drift (145-165)</option>
+              <option value="dnb">D&B (165-180)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="tracks-table" id="tracksTable">
+            <thead>
+              <tr>
+                <th style="width: 70px;">AUDIO</th>
+                <th onclick="sortTable('name')">Track Title</th>
+                <th onclick="sortTable('artist')">Artist</th>
+                <th onclick="sortTable('bpm')">BPM</th>
+                <th onclick="sortTable('key')">Key</th>
+                <th onclick="sortTable('genre')">Genre</th>
+                <th onclick="sortTable('label')">Label</th>
+                <th onclick="sortTable('year')">Year</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="tracksTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Inspector -->
+      <div class="inspector-panel">
+        
+        <!-- Track Details Card -->
+        <div class="w95-window" style="padding: 12px;">
+          <div class="w95-titlebar" style="margin: -12px -12px 10px -12px;">
+            <div class="w95-title" style="font-size: 11px;"><span>INSPECTOR</span> // METADATA</div>
+          </div>
+          <div style="font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: #fff;" id="inspTitle">Select Track</div>
+          <div style="font-family: var(--font-mono); font-size: 13px; color: var(--matrix-green);" id="inspArtist">-</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;" id="inspMetaPills"></div>
+        </div>
+
+        <!-- Music Theory Card -->
+        <div class="w95-window" id="theoryBox" style="display: none; padding: 12px;">
+          <div class="w95-titlebar" style="margin: -12px -12px 10px -12px;">
+            <div class="w95-title" style="font-size: 11px;"><span>HARMONICS</span> // DIATONIC CHORDS</div>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-family: var(--font-mono); font-size: 11px;">
+            <div>
+              <span style="color: var(--text-dim);">KEY / SCALE:</span>
+              <div style="color: #fff; font-weight: 700;" id="thKeyName">-</div>
+            </div>
+            <div>
+              <span style="color: var(--text-dim);">SUB FREQUENCY:</span>
+              <div style="color: var(--matrix-green); font-weight: 700;" id="thSubHz">-</div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);">CLICK TRIAD CHORDS TO HEAR ALOUD:</div>
+            <div class="chords-list" id="thTriads"></div>
+          </div>
+
+          <div style="margin-top: 8px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-dim);">7TH CHORDS:</div>
+            <div class="chords-list" id="thSevenths"></div>
+          </div>
+
+          <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim);">
+            PROGRESSIONS: <span style="color: var(--text-main);" id="thProgressions">-</span>
+          </div>
+        </div>
+
+        <!-- Mix Blends Card -->
+        <div class="w95-window" id="blendsSection" style="display: none; padding: 12px;">
+          <div class="w95-titlebar" style="margin: -12px -12px 10px -12px;">
+            <div class="w95-title" style="font-size: 11px;"><span>MIX MATRIX</span> // HARMONIC BLENDS</div>
+            <span style="font-family: var(--font-mono); font-size: 10px; color: var(--matrix-green);" id="blendCandidateCount">0</span>
+          </div>
+
+          <div class="blend-tabs">
+            <button class="blend-tab active" onclick="setBlendFilter('all')">All</button>
+            <button class="blend-tab" onclick="setBlendFilter('exact')">Same</button>
+            <button class="blend-tab" onclick="setBlendFilter('fifths')">±1 5th</button>
+            <button class="blend-tab" onclick="setBlendFilter('swap')">Swap</button>
+            <button class="blend-tab" onclick="setBlendFilter('boost')">+2 Boost</button>
+            <button class="blend-tab" onclick="setBlendFilter('halftime')">Half (2x)</button>
+          </div>
+
+          <div class="blend-candidates-list" id="blendList"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Audio Match Overview Modal -->
+  <div class="modal-overlay" id="matchOverviewModal">
+    <div class="modal-window">
+      <div class="w95-titlebar">
+        <div class="w95-title"><span>TELEMETRY</span> // AUDIO MATCH OVERVIEW</div>
+        <div class="w95-btn-box" onclick="closeMatchOverviewModal()">X</div>
+      </div>
+      <div style="padding: 16px;">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <button class="btn-w95 btn-green" id="tabMatchedBtn" onclick="switchMatchTab('matched')">Matched (<span id="matchedCountTab">0</span>)</button>
+          <button class="btn-w95 btn-amber" id="tabMissingBtn" onclick="switchMatchTab('missing')">Missing (<span id="missingCountTab">0</span>)</button>
+        </div>
+        <div class="table-wrapper" style="max-height: 420px;">
+          <table class="tracks-table">
+            <thead>
+              <tr>
+                <th>Track Title</th>
+                <th>Artist</th>
+                <th>File Match / Expected Path</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="matchOverviewTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Compare Modal -->
+  <div class="modal-overlay" id="compareModal">
+    <div class="modal-window">
+      <div class="w95-titlebar">
+        <div class="w95-title"><span>DUAL DECK</span> // TRACK DIFFERENTIATION</div>
+        <div class="w95-btn-box" onclick="closeCompareModal()">X</div>
+      </div>
+      <div style="padding: 16px;">
+        <div style="display: grid; grid-template-columns: 1fr 80px 1fr; gap: 12px; align-items: center; margin-bottom: 14px;">
+          <div class="w95-inset" style="padding: 12px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--cyber-cyan);">DECK A</div>
+            <div style="font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: #fff;" id="cmpTitleA">-</div>
+            <div style="font-size: 12px; color: var(--text-dim);" id="cmpArtistA">-</div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <span class="badge-key" id="cmpKeyA">-</span>
+              <span class="badge-bpm" id="cmpBpmA">- BPM</span>
+            </div>
+          </div>
+
+          <div style="text-align: center; font-family: var(--font-mono); font-weight: 700; color: var(--matrix-green);" id="cmpMatchScore">
+            VS
+          </div>
+
+          <div class="w95-inset" style="padding: 12px;">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--winamp-amber);">DECK B</div>
+            <div style="font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: #fff;" id="cmpTitleB">-</div>
+            <div style="font-size: 12px; color: var(--text-dim);" id="cmpArtistB">-</div>
+            <div style="display: flex; gap: 8px; margin-top: 6px;">
+              <span class="badge-key" id="cmpKeyB">-</span>
+              <span class="badge-bpm" id="cmpBpmB">- BPM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="w95-inset" style="padding: 10px; margin-bottom: 12px; font-family: var(--font-mono); font-size: 12px;">
+          <div>HARMONIC DELTA: <strong style="color: #fff;" id="cmpKeyRel">-</strong></div>
+          <div>TEMPO DELTA: <strong style="color: var(--cyber-cyan);" id="cmpBpmDiff">-</strong></div>
+          <div>CDJ FADER SYNC: <strong style="color: var(--matrix-green);" id="cmpPitchFader">-</strong></div>
+        </div>
+
+        <div class="w95-inset" style="padding: 12px; background: rgba(0, 240, 255, 0.04);">
+          <div style="font-family: var(--font-mono); font-size: 11px; font-weight: 700; color: var(--cyber-cyan); margin-bottom: 4px;">DJ TRANSITION STRATEGY:</div>
+          <div style="font-size: 12px; line-height: 1.4;" id="cmpStrategyText">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setlist Modal -->
+  <div class="modal-overlay" id="setlistModal">
+    <div class="modal-window">
+      <div class="w95-titlebar">
+        <div class="w95-title"><span>SETLIST</span> // SEQUENCE & FLOW TELEMETRY</div>
+        <div class="w95-btn-box" onclick="closeSetlistModal()">X</div>
+      </div>
+      <div style="padding: 16px;">
+        <div id="setlistFlow" style="display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto;"></div>
+        <div style="display: flex; justify-content: space-between; margin-top: 14px;">
+          <button class="btn-w95 btn-sm" onclick="clearSetlist()">Clear</button>
+          <button class="btn-w95 btn-cyan btn-sm" onclick="exportSetlistM3U()">Export M3U</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toastBanner" style="position: fixed; bottom: 18px; right: 18px; background: #0b1118; border: 2px solid var(--matrix-green); color: #fff; padding: 10px 16px; box-shadow: 3px 3px 0px #000; z-index: 300; display: none; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 12px;">
+    <span class="led-indicator"></span>
+    <span id="toastMessage">Notification</span>
+    <button onclick="document.getElementById('toastBanner').style.display='none'" style="background: transparent; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; margin-left: 6px;">&times;</button>
+  </div>
+
+  <footer>
+    WINBOX 95 • Rekordbox XML Compatibility • Winamp '95 Edition
+  </footer>
+
+  <script>
+    // Music Theory & Notes Engine
+    const THEORY = {
+      "1A": {
+        name: "Ab minor / G# minor", root: "Ab", mode: "minor", relative: "1B",
+        scale: ["Ab", "Bb", "B", "Db", "Eb", "E", "Gb"],
+        subHz: "51.9 Hz (Ab1 / G#1) • Warm deep rumble",
+        triads: ["Abm", "Bdim", "B", "Dbm", "Ebm", "E", "Gb"],
+        sevenths: ["Abm7", "Bbm7b5", "Bmaj7", "Dbm7", "Ebm7", "Emaj7", "Gb7"],
+        progressions: "i - VI - VII (Abm - E - Gb) • i - iv - v (Abm - Dbm - Ebm) • i - VI (Abm - E)",
+        mood: "Dark, atmospheric, brooding, subterranean weight."
+      },
+      "2A": {
+        name: "Eb minor / D# minor", root: "Eb", mode: "minor", relative: "2B",
+        scale: ["Eb", "F", "Gb", "Ab", "Bb", "B", "Db"],
+        subHz: "38.9 Hz (Eb1) / 77.8 Hz (Eb2) • Sub-system resonance sweetspot",
+        triads: ["Ebm", "Fdim", "Gb", "Abm", "Bbm", "B", "Db"],
+        sevenths: ["Ebm7", "Fm7b5", "Gbmaj7", "Abm7", "Bbm7", "Bmaj7", "Db7"],
+        progressions: "i - VI - VII (Ebm - B - Db) • i - iv - v (Ebm - Abm - Bbm) • i - VI (Ebm - B)",
+        mood: "Deep, mystical, menacing, cavernous sub pressure."
+      },
+      "3A": {
+        name: "Bb minor / A# minor", root: "Bb", mode: "minor", relative: "3B",
+        scale: ["Bb", "C", "Db", "Eb", "F", "Gb", "Ab"],
+        subHz: "58.3 Hz (Bb1) • Punchy chest-thumping bass impact",
+        triads: ["Bbm", "Cdim", "Db", "Ebm", "Fm", "Gb", "Ab"],
+        sevenths: ["Bbm7", "Cm7b5", "Dbmaj7", "Ebm7", "Fm7", "Gbmaj7", "Ab7"],
+        progressions: "i - VI - VII (Bbm - Gb - Ab) • i - iv - v (Bbm - Ebm - Fm) • i - VI (Bbm - Gb)",
+        mood: "Somber, heavy, nocturnal, sharp cutting synth textures."
+      },
+      "4A": {
+        name: "F minor", root: "F", mode: "minor", relative: "4B",
+        scale: ["F", "G", "Ab", "Bb", "C", "Db", "Eb"],
+        subHz: "43.7 Hz (F1) / 87.3 Hz (F2) • Golden dubstep sub fundamental",
+        triads: ["Fm", "Gdim", "Ab", "Bbm", "Cm", "Db", "Eb"],
+        sevenths: ["Fm7", "Gm7b5", "Abmaj7", "Bbm7", "Cm7", "Dbmaj7", "Eb7"],
+        progressions: "i - VI - VII (Fm - Db - Eb) • i - iv - v (Fm - Bbm - Cm) • i - VI (Fm - Db)",
+        mood: "Ominous, dread-inducing, deeply emotional, classic sound system staple."
+      },
+      "5A": {
+        name: "C minor", root: "C", mode: "minor", relative: "5B",
+        scale: ["C", "D", "Eb", "F", "G", "Ab", "Bb"],
+        subHz: "65.4 Hz (C2) • Tight club bass clarity",
+        triads: ["Cm", "Ddim", "Eb", "Fm", "Gm", "Ab", "Bb"],
+        sevenths: ["Cm7", "Dm7b5", "Ebmaj7", "Fm7", "Gm7", "Abmaj7", "Bb7"],
+        progressions: "i - VI - VII (Cm - Ab - Bb) • i - iv - v (Cm - Fm - Gm) • i - VI (Cm - Ab)",
+        mood: "Dramatic, driving, surgical precision, relentless underground energy."
+      },
+      "6A": {
+        name: "G minor", root: "G", mode: "minor", relative: "6B",
+        scale: ["G", "A", "Bb", "C", "D", "Eb", "F"],
+        subHz: "49.0 Hz (G1) • Powerful round low-end resonance",
+        triads: ["Gm", "Adim", "Bb", "Cm", "Dm", "Eb", "F"],
+        sevenths: ["Gm7", "Am7b5", "Bbmaj7", "Cm7", "Dm7", "Ebmaj7", "F7"],
+        progressions: "i - VI - VII (Gm - Eb - F) • i - iv - v (Gm - Cm - Dm) • i - VI (Gm - Eb)",
+        mood: "Melancholic, moody, hypnotic, driving rolling basslines."
+      },
+      "7A": {
+        name: "D minor", root: "D", mode: "minor", relative: "7B",
+        scale: ["D", "E", "F", "G", "A", "Bb", "C"],
+        subHz: "36.7 Hz (D1) / 73.4 Hz (D2) • Heavy foundational sub tone",
+        triads: ["Dm", "Edim", "F", "Gm", "Am", "Bb", "C"],
+        sevenths: ["Dm7", "Em7b5", "Fmaj7", "Gm7", "Am7", "Bbmaj7", "C7"],
+        progressions: "i - VI - VII (Dm - Bb - C) • i - iv - v (Dm - Gm - Am) • i - VI (Dm - Bb)",
+        mood: "Introspective, driving, raw minimal energy, classic dub elegance."
+      },
+      "8A": {
+        name: "A minor", root: "A", mode: "minor", relative: "8B",
+        scale: ["A", "B", "C", "D", "E", "F", "G"],
+        subHz: "55.0 Hz (A1) • Universal electronic bass anchor",
+        triads: ["Am", "Bdim", "C", "Dm", "Em", "F", "G"],
+        sevenths: ["Am7", "Bm7b5", "Cmaj7", "Dm7", "Em7", "Fmaj7", "G7"],
+        progressions: "i - VI - VII (Am - F - G) • i - iv - v (Am - Dm - Em) • i - VI (Am - F)",
+        mood: "Cold, natural, pure minimal clarity, universally compatible."
+      },
+      "9A": {
+        name: "E minor", root: "E", mode: "minor", relative: "9B",
+        scale: ["E", "F#", "G", "A", "B", "C", "D"],
+        subHz: "41.2 Hz (E1) / 82.4 Hz (E2) • Peak system chest punch",
+        triads: ["Em", "F#dim", "G", "Am", "Bm", "C", "D"],
+        sevenths: ["Em7", "F#m7b5", "Gmaj7", "Am7", "Bm7", "Cmaj7", "D7"],
+        progressions: "i - VI - VII (Em - C - D) • i - iv - v (Em - Am - Bm) • i - VI (Em - C)",
+        mood: "Restless, aggressive, electrifying, thunderous sub displacement."
+      },
+      "10A": {
+        name: "B minor", root: "B", mode: "minor", relative: "10B",
+        scale: ["B", "C#", "D", "E", "F#", "G", "A"],
+        subHz: "61.7 Hz (B1) • Crisp, tight, articulate bass response",
+        triads: ["Bm", "C#dim", "D", "Em", "F#m", "G", "A"],
+        sevenths: ["Bm7", "C#m7b5", "Dmaj7", "Em7", "F#m7", "Gmaj7", "A7"],
+        progressions: "i - VI - VII (Bm - G - A) • i - iv - v (Bm - Em - F#m) • i - VI (Bm - G)",
+        mood: "Dark, solitary, intense, sharp transient response."
+      },
+      "11A": {
+        name: "F# minor / Gb minor", root: "F#", mode: "minor", relative: "11B",
+        scale: ["F#", "G#", "A", "B", "C#", "D", "E"],
+        subHz: "46.2 Hz (F#1) • Prime sound system tuning frequency",
+        triads: ["F#m", "G#dim", "A", "Bm", "C#m", "D", "E"],
+        sevenths: ["F#m7", "G#m7b5", "Amaj7", "Bm7", "C#m7", "Dmaj7", "E7"],
+        progressions: "i - VI - VII (F#m - D - E) • i - iv - v (F#m - Bm - C#m) • i - VI (F#m - D)",
+        mood: "Piercing, fierce, hypnotic, deep meditative pressure."
+      },
+      "12A": {
+        name: "C# minor / Db minor", root: "C#", mode: "minor", relative: "12B",
+        scale: ["C#", "D#", "E", "F#", "G#", "A", "B"],
+        subHz: "34.6 Hz (C#1) / 69.3 Hz (C#2) • Earth-shaking infrasonic rumble",
+        triads: ["C#m", "D#dim", "E", "F#m", "G#m", "A", "B"],
+        sevenths: ["C#m7", "D#m7b5", "Emaj7", "F#m7", "G#m7", "Amaj7", "B7"],
+        progressions: "i - VI - VII (C#m - A - B) • i - iv - v (C#m - F#m - G#m) • i - VI (C#m - A)",
+        mood: "Desolate, heavyweight, gripping, cavernous depth."
+      },
+      "1B": {
+        name: "B major", root: "B", mode: "major", relative: "1A",
+        scale: ["B", "C#", "D#", "E", "F#", "G#", "A#"],
+        subHz: "61.7 Hz (B1)",
+        triads: ["B", "C#m", "D#m", "E", "F#", "G#m", "A#dim"],
+        sevenths: ["Bmaj7", "C#m7", "D#m7", "Emaj7", "F#7", "G#m7", "A#m7b5"],
+        progressions: "I - IV - V (B - E - F#) • I - vi - IV - V (B - G#m - E - F#)",
+        mood: "Shimmering, bright, expansive, vibrant."
+      },
+      "2B": {
+        name: "F# major / Gb major", root: "F#", mode: "major", relative: "2A",
+        scale: ["F#", "G#", "A#", "B", "C#", "D#", "F"],
+        subHz: "46.2 Hz (F#1)",
+        triads: ["F#", "G#m", "A#m", "B", "C#", "D#m", "Fdim"],
+        sevenths: ["F#maj7", "G#m7", "A#m7", "Bmaj7", "C#7", "D#m7", "Fm7b5"],
+        progressions: "I - IV - V (F# - B - C#) • I - vi - IV - V (F# - D#m - B - C#)",
+        mood: "Triumphant, euphoric, crystalline clarity."
+      },
+      "3B": {
+        name: "Db major / C# major", root: "Db", mode: "major", relative: "3A",
+        scale: ["Db", "Eb", "F", "Gb", "Ab", "Bb", "C"],
+        subHz: "69.3 Hz (Db2)",
+        triads: ["Db", "Ebm", "Fm", "Gb", "Ab", "Bbm", "Cdim"],
+        sevenths: ["Dbmaj7", "Ebm7", "Fm7", "Gbmaj7", "Ab7", "Bbm7", "Cm7b5"],
+        progressions: "I - IV - V (Db - Gb - Ab) • I - vi - IV - V (Db - Bbm - Gb - Ab)",
+        mood: "Warm, resonant, lush, deeply satisfying."
+      },
+      "4B": {
+        name: "Ab major", root: "Ab", mode: "major", relative: "4A",
+        scale: ["Ab", "Bb", "C", "Db", "Eb", "F", "G"],
+        subHz: "51.9 Hz (Ab1)",
+        triads: ["Ab", "Bbm", "Cm", "Db", "Eb", "Fm", "Gdim"],
+        sevenths: ["Abmaj7", "Bbm7", "Cm7", "Dbmaj7", "Eb7", "Fm7", "Gm7b5"],
+        progressions: "I - IV - V (Ab - Db - Eb) • I - vi - IV - V (Ab - Fm - Db - Eb)",
+        mood: "Noble, radiant, spacious, harmonic grandeur."
+      },
+      "5B": {
+        name: "Eb major", root: "Eb", mode: "major", relative: "5A",
+        scale: ["Eb", "F", "G", "Ab", "Bb", "C", "D"],
+        subHz: "38.9 Hz (Eb1)",
+        triads: ["Eb", "Fm", "Gm", "Ab", "Bb", "Cm", "Ddim"],
+        sevenths: ["Ebmaj7", "Fm7", "Gm7", "Abmaj7", "Bb7", "Cm7", "Dm7b5"],
+        progressions: "I - IV - V (Eb - Ab - Bb) • I - vi - IV - V (Eb - Cm - Ab - Bb)",
+        mood: "Heroic, bold, uplifting, open-air warmth."
+      },
+      "6B": {
+        name: "Bb major", root: "Bb", mode: "major", relative: "6A",
+        scale: ["Bb", "C", "D", "Eb", "F", "G", "A"],
+        subHz: "58.3 Hz (Bb1)",
+        triads: ["Bb", "Cm", "Dm", "Eb", "F", "Gm", "Adim"],
+        sevenths: ["Bbmaj7", "Cm7", "Dm7", "Ebmaj7", "F7", "Gm7", "Am7b5"],
+        progressions: "I - IV - V (Bb - Eb - F) • I - vi - IV - V (Bb - Gm - Eb - F)",
+        mood: "Joyful, optimistic, groovy, energetic."
+      },
+      "7B": {
+        name: "F major", root: "F", mode: "major", relative: "7A",
+        scale: ["F", "G", "A", "Bb", "C", "D", "E"],
+        subHz: "43.7 Hz (F1)",
+        triads: ["F", "Gm", "Am", "Bb", "C", "Dm", "Edim"],
+        sevenths: ["Fmaj7", "Gm7", "Am7", "Bbmaj7", "C7", "Dm7", "Em7b5"],
+        progressions: "I - IV - V (F - Bb - C) • I - vi - IV - V (F - Dm - Bb - C)",
+        mood: "Peaceful, pastoral, bright, breezy energy."
+      },
+      "8B": {
+        name: "C major", root: "C", mode: "major", relative: "8A",
+        scale: ["C", "D", "E", "F", "G", "A", "B"],
+        subHz: "65.4 Hz (C2)",
+        triads: ["C", "Dm", "Em", "F", "G", "Am", "Bdim"],
+        sevenths: ["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7", "Bm7b5"],
+        progressions: "I - IV - V (C - F - G) • I - vi - IV - V (C - Am - F - G)",
+        mood: "Pure, open, resolving, classic simplicity."
+      },
+      "9B": {
+        name: "G major", root: "G", mode: "major", relative: "9A",
+        scale: ["G", "A", "B", "C", "D", "E", "F#"],
+        subHz: "49.0 Hz (G1)",
+        triads: ["G", "Am", "Bm", "C", "D", "Em", "F#dim"],
+        sevenths: ["Gmaj7", "Am7", "Bm7", "Cmaj7", "D7", "Em7", "F#m7b5"],
+        progressions: "I - IV - V (G - C - D) • I - vi - IV - V (G - Em - C - D)",
+        mood: "Fresh, lively, cheerful, dynamic drive."
+      },
+      "10B": {
+        name: "D major", root: "D", mode: "major", relative: "10A",
+        scale: ["D", "E", "F#", "G", "A", "B", "C#"],
+        subHz: "36.7 Hz (D1)",
+        triads: ["D", "Em", "F#m", "G", "A", "Bm", "C#dim"],
+        sevenths: ["Dmaj7", "Em7", "F#m7", "Gmaj7", "A7", "Bm7", "C#m7b5"],
+        progressions: "I - IV - V (D - G - A) • I - vi - IV - V (D - Bm - G - A)",
+        mood: "Victorious, brilliant, punchy festival energy."
+      },
+      "11B": {
+        name: "A major", root: "A", mode: "major", relative: "11A",
+        scale: ["A", "B", "C#", "D", "E", "F#", "G#"],
+        subHz: "55.0 Hz (A1)",
+        triads: ["A", "Bm", "C#m", "D", "E", "F#m", "G#dim"],
+        sevenths: ["Amaj7", "Bm7", "C#m7", "Dmaj7", "E7", "F#m7", "G#m7b5"],
+        progressions: "I - IV - V (A - D - E) • I - vi - IV - V (A - F#m - D - E)",
+        mood: "Luminous, golden, confident, ecstatic."
+      },
+      "12B": {
+        name: "E major", root: "E", mode: "major", relative: "12A",
+        scale: ["E", "F#", "G#", "A", "B", "C#", "D#"],
+        subHz: "41.2 Hz (E1)",
+        triads: ["E", "F#m", "G#m", "A", "B", "C#m", "D#dim"],
+        sevenths: ["Emaj7", "F#m7", "G#m7", "Amaj7", "B7", "C#m7", "D#m7b5"],
+        progressions: "I - IV - V (E - A - B) • I - vi - IV - V (E - C#m - A - B)",
+        mood: "Electric, soaring, wide, powerful euphoria."
+      }
+    };
+
+    const NOTE_FREQS = {
+      "C3": 130.81, "C#3": 138.59, "Db3": 138.59, "D3": 146.83, "D#3": 155.56, "Eb3": 155.56, "E3": 164.81,
+      "F3": 174.61, "F#3": 185.00, "Gb3": 185.00, "G3": 196.00, "G#3": 207.65, "Ab3": 207.65, "A3": 220.00,
+      "A#3": 233.08, "Bb3": 233.08, "B3": 246.94,
+      "C4": 261.63, "C#4": 277.18, "Db4": 277.18, "D4": 293.66, "D#4": 311.13, "Eb4": 311.13, "E4": 329.63,
+      "F4": 349.23, "F#4": 369.99, "Gb4": 369.99, "G4": 392.00, "G#4": 415.30, "Ab4": 415.30, "A4": 440.00,
+      "A#4": 466.16, "Bb4": 466.16, "B4": 493.88,
+      "C5": 523.25, "C#5": 554.37, "D5": 587.33, "Eb5": 622.25, "E5": 659.25, "F5": 698.46, "G5": 783.99
+    };
+
+    const KEY_LOOKUP = {
+      "abm": "1A", "g#m": "1A", "ab min": "1A", "g# min": "1A", "ab minor": "1A", "g# minor": "1A", "1a": "1A", "1m": "1A",
+      "ebm": "2A", "d#m": "2A", "eb min": "2A", "d# min": "2A", "eb minor": "2A", "d# minor": "2A", "2a": "2A", "2m": "2A",
+      "bbm": "3A", "a#m": "3A", "bb min": "3A", "a# min": "3A", "bb minor": "3A", "a# minor": "3A", "3a": "3A", "3m": "3A",
+      "fm": "4A", "f min": "4A", "f minor": "4A", "4a": "4A", "4m": "4A",
+      "cm": "5A", "c min": "5A", "c minor": "5A", "5a": "5A", "5m": "5A",
+      "gm": "6A", "g min": "6A", "g minor": "6A", "6a": "6A", "6m": "6A",
+      "dm": "7A", "d min": "7A", "d minor": "7A", "7a": "7A", "7m": "7A",
+      "am": "8A", "a min": "8A", "a minor": "8A", "8a": "8A", "8m": "8A",
+      "em": "9A", "e min": "9A", "e minor": "9A", "9a": "9A", "9m": "9A",
+      "bm": "10A", "b min": "10A", "b minor": "10A", "10a": "10A", "10m": "10A",
+      "f#m": "11A", "gbm": "11A", "f# min": "11A", "gb min": "11A", "f# minor": "11A", "gb minor": "11A", "11a": "11A", "11m": "11A",
+      "c#m": "12A", "dbm": "12A", "c# min": "12A", "db min": "12A", "c# minor": "12A", "db minor": "12A", "12a": "12A", "12m": "12A",
+
+      "b": "1B", "b maj": "1B", "b major": "1B", "1b": "1B", "1d": "1B",
+      "f#": "2B", "gb": "2B", "f# maj": "2B", "gb maj": "2B", "f# major": "2B", "gb major": "2B", "2b": "2B", "2d": "2B",
+      "db": "3B", "c#": "3B", "db maj": "3B", "c# maj": "3B", "db major": "3B", "c# major": "3B", "3b": "3B", "3d": "3B",
+      "ab": "4B", "g#": "4B", "ab maj": "4B", "g# maj": "4B", "ab major": "4B", "g# major": "4B", "4b": "4B", "4d": "4B",
+      "eb": "5B", "d#": "5B", "eb maj": "5B", "d# maj": "5B", "eb major": "5B", "d# major": "5B", "5b": "5B", "5d": "5B",
+      "bb": "6B", "a#": "6B", "bb maj": "6B", "a# maj": "6B", "bb major": "6B", "a# major": "6B", "6b": "6B", "6d": "6B",
+      "f": "7B", "f maj": "7B", "f major": "7B", "7b": "7B", "7d": "7B",
+      "c": "8B", "c maj": "8B", "c major": "8B", "8b": "8B", "8d": "8B",
+      "g": "9B", "g maj": "9B", "g major": "9B", "9b": "9B", "9d": "9B",
+      "d": "10B", "d maj": "10B", "d major": "10B", "10b": "10B", "10d": "10B",
+      "a": "11B", "a maj": "11B", "a major": "11B", "11b": "11B", "11d": "11B",
+      "e": "12B", "e maj": "12B", "e major": "12B", "12b": "12B", "12d": "12B"
+    };
+
+    function normalizeKey(str) {
+      if (!str) return null;
+      let clean = str.trim().toLowerCase().replace(/♭/g, 'b').replace(/♯/g, '#');
+      if (KEY_LOOKUP[clean]) return KEY_LOOKUP[clean];
+      let match = clean.match(/^(\d{1,2})([ab])$/);
+      if (match) {
+        let num = parseInt(match[1]);
+        if (num >= 1 && num <= 12) return `${num}${match[2].toUpperCase()}`;
+      }
+      return null;
+    }
+
+    // State Variables
+    let libraryTracks = [];
+    let selectedTrack = null;
+    let blendFilter = 'all';
+    let sortCol = 'bpm';
+    let sortAsc = true;
+    let setlist = [];
+
+    // Audio & Web Audio Engine
+    let audioCtx = null;
+    let masterGainNode = null;
+    let currentVolume = 0.8;
+    let audioPlayer = null;
+    let isPlaying = false;
+    let trackDuration = 240;
+    let currentTime = 0;
+    let currentPitchPct = 0;
+    let activeLoop = null;
+
+    let currentDecodedBuffer = null;
+    let activeBufferSourceNode = null;
+    let bufferPlaybackStartTime = 0;
+    let bufferPauseOffset = 0;
+    let isBufferPlaying = false;
+    let isAudioDecoding = false;
+    let playOnDecodeComplete = false;
+
+    // Indexed audio files map (filename -> File)
+    const localAudioFilesMap = new Map();
+
+    const DEMO_DATA = [
+      { id: "1", name: "Subterranean Drift", artist: "Vetch", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Innamind Recordings", year: 2025, duration: 324, location: "demo_sub_140.wav" },
+      { id: "2", name: "Obsidian Bell", artist: "Vetch", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Innamind Recordings", year: 2025, duration: 298, location: "demo_sub_140.wav" },
+      { id: "3", name: "Spinal Tap", artist: "Kahn & Neek", bpm: 139.0, key: "7A", genre: "Deep Dubstep", label: "Deep Medi Musik", year: 2023, duration: 312, location: "demo_sub_140.wav" },
+      { id: "4", name: "Midnight Marauder", artist: "Mala", bpm: 140.0, key: "9A", genre: "Dubstep", label: "Deep Medi Musik", year: 2022, duration: 345, location: "demo_sub_140.wav" },
+      { id: "5", name: "Sleeper Cell", artist: "Sleeper", bpm: 140.0, key: "8B", genre: "Minimal Bass", label: "Crucial Recordings", year: 2024, duration: 286, location: "demo_sub_140.wav" },
+      { id: "6", name: "Half Light", artist: "Alix Perez", bpm: 87.0, key: "8A", genre: "Halftime", label: "1985 Music", year: 2024, duration: 270, location: "" },
+      { id: "7", name: "Trinity", artist: "Monty", bpm: 174.0, key: "8A", genre: "Drum & Bass", label: "1985 Music", year: 2024, duration: 305, location: "" },
+      { id: "8", name: "Favelas Nocturnas", artist: "BR_FNK", bpm: 155.0, key: "4A", genre: "Brazilian Phonk", label: "Phonka Sound", year: 2026, duration: 168, location: "" },
+      { id: "9", name: "Drift King Rampa", artist: "BR_FNK", bpm: 156.0, key: "4A", genre: "Drift Phonk", label: "Phonka Sound", year: 2026, duration: 182, location: "" },
+      { id: "10", name: "Baile Ghost", artist: "BR_FNK", bpm: 154.0, key: "5A", genre: "Brazilian Phonk", label: "Phonka Sound", year: 2026, duration: 175, location: "" },
+      { id: "11", name: "Abyss Walker", artist: "Vetch", bpm: 142.0, key: "10A", genre: "Minimal Bass", label: "System Music", year: 2026, duration: 310, location: "" },
+      { id: "12", name: "Ruffage", artist: "J:Kenzo", bpm: 140.0, key: "11A", genre: "Dubstep", label: "Artikal Music", year: 2023, duration: 330, location: "" },
+      { id: "13", name: "Shattered Silence", artist: "Truth", bpm: 140.0, key: "6A", genre: "Deep Dubstep", label: "Deep, Dark & Dangerous", year: 2024, duration: 295, location: "" },
+      { id: "14", name: "Chamber 9", artist: "Biome", bpm: 140.0, key: "7A", genre: "Minimal Dubstep", label: "Macabre Unit", year: 2022, duration: 315, location: "" },
+      { id: "15", name: "Concrete Jungle", artist: "The Widdler", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Dank 'N' Dirty", year: 2023, duration: 288, location: "" },
+      { id: "16", name: "Out There", artist: "The Widdler", bpm: 140.0, key: "9A", genre: "Deep Dubstep", label: "Dank 'N' Dirty", year: 2024, duration: 320, location: "" },
+      { id: "17", name: "Zero Degrees", artist: "Commodo", bpm: 140.0, key: "3A", genre: "Grime / Dubstep", label: "Black Acre", year: 2021, duration: 260, location: "" },
+      { id: "18", name: "Hollow", artist: "Headland", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "System Music", year: 2023, duration: 275, location: "" },
+      { id: "19", name: "Viper Strike", artist: "Drone", bpm: 140.0, key: "7A", genre: "Dubstep", label: "1985 Music", year: 2024, duration: 290, location: "" },
+      { id: "20", name: "Submerged", artist: "Coki", bpm: 140.0, key: "2A", genre: "Dubstep", label: "DMZ", year: 2020, duration: 340, location: "" },
+      { id: "21", name: "Halftime Assassin", artist: "Ivy Lab", bpm: 85.0, key: "7A", genre: "Halftime", label: "20/20 LDN", year: 2022, duration: 245, location: "" },
+      { id: "22", name: "Dark Angel", artist: "Benga", bpm: 140.0, key: "12A", genre: "Dubstep", label: "Tempa", year: 2021, duration: 315, location: "" },
+      { id: "23", name: "Mirage", artist: "Sir Hiss", bpm: 140.0, key: "9A", genre: "Grime", label: "White Peach", year: 2023, duration: 272, location: "" },
+      { id: "24", name: "Tokyo Driftline", artist: "BR_FNK", bpm: 158.0, key: "3A", genre: "Drift Phonk", label: "Phonka Sound", year: 2026, duration: 190, location: "" },
+      { id: "25", name: "Pulse Width", artist: "Overmono", bpm: 134.0, key: "8A", genre: "UK Bass / Techno", label: "XL Recordings", year: 2023, duration: 340, location: "" },
+      { id: "26", name: "Baddadan", artist: "Chase & Status", bpm: 174.0, key: "9A", genre: "Drum & Bass", label: "EMI", year: 2023, duration: 215, location: "" },
+      { id: "27", name: "Bassline Terror", artist: "Vetch", bpm: 70.0, key: "8A", genre: "Halftime Bass", label: "Innamind Recordings", year: 2025, duration: 260, location: "" },
+      { id: "28", name: "Baphomet", artist: "Ganja White Night", bpm: 140.0, key: "1A", genre: "Bass Music", label: "SubCarbon", year: 2022, duration: 310, location: "" },
+      { id: "29", name: "Roots & Culture", artist: "Egoless", bpm: 140.0, key: "8A", genre: "Dub", label: "System Music", year: 2023, duration: 360, location: "" },
+      { id: "30", name: "Iron Lung", artist: "Caspa", bpm: 140.0, key: "7A", genre: "Dubstep", label: "Sub Soldiers", year: 2021, duration: 300, location: "" }
+    ];
+
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function getMasterGainNode() {
+      const ctx = getAudioContext();
+      if (!masterGainNode) {
+        masterGainNode = ctx.createGain();
+        masterGainNode.gain.setValueAtTime(currentVolume, ctx.currentTime);
+        masterGainNode.connect(ctx.destination);
+      }
+      return masterGainNode;
+    }
+
+    // Global Autoplay unblocker for Firefox
+    ['click', 'pointerdown', 'keydown', 'touchstart'].forEach(evt => {
+      window.addEventListener(evt, () => {
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
+      }, { capture: true });
+    });
+
+    // Clean File Matching Engine (Strict 1-to-1)
+    function cleanBaseName(s) {
+      if (!s) return '';
+      return s.toLowerCase().replace(/\.[a-z0-9]{2,5}$/i, '').trim();
+    }
+
+    function extractFilenameFromLocation(loc) {
+      if (!loc) return '';
+      let clean = loc;
+      const prefixes = ['file://localhost/', 'file:///', 'file://'];
+      for (const p of prefixes) {
+        if (clean.startsWith(p)) {
+          clean = clean.slice(p.length);
+          break;
+        }
+      }
+      try { clean = decodeURIComponent(clean); } catch(e) {}
+      clean = clean.replace(/\\/g, '/');
+      return clean.split('/').pop().trim();
+    }
+
+    function runStrictLibraryMatch() {
+      if (localAudioFilesMap.size === 0) return;
+
+      const availableFiles = new Map();
+      for (const [name, file] of localAudioFilesMap.entries()) {
+        availableFiles.set(name.toLowerCase(), file);
+      }
+
+      const baseFilesMap = new Map();
+      for (const [name, file] of localAudioFilesMap.entries()) {
+        baseFilesMap.set(cleanBaseName(name), file);
+      }
+
+      const usedFiles = new Set();
+
+      // Retain manual user assignments
+      libraryTracks.forEach(t => {
+        if (t.assignedAudioFile) {
+          usedFiles.add(t.assignedAudioFile.name.toLowerCase());
+        }
+      });
+
+      // Pass 1: Exact Location Filename
+      libraryTracks.forEach(t => {
+        if (t.assignedAudioFile) return;
+        const locName = extractFilenameFromLocation(t.location).toLowerCase();
+        if (locName && availableFiles.has(locName)) {
+          const file = availableFiles.get(locName);
+          if (!usedFiles.has(file.name.toLowerCase())) {
+            t.assignedAudioFile = file;
+            usedFiles.add(file.name.toLowerCase());
+          }
+        }
+      });
+
+      // Pass 2: Base location filename (ignores .wav vs .mp3 vs .flac)
+      libraryTracks.forEach(t => {
+        if (t.assignedAudioFile) return;
+        const locBase = cleanBaseName(extractFilenameFromLocation(t.location));
+        if (locBase && baseFilesMap.has(locBase)) {
+          const file = baseFilesMap.get(locBase);
+          if (!usedFiles.has(file.name.toLowerCase())) {
+            t.assignedAudioFile = file;
+            usedFiles.add(file.name.toLowerCase());
+          }
+        }
+      });
+
+      // Pass 3: Full title match
+      libraryTracks.forEach(t => {
+        if (t.assignedAudioFile) return;
+        const title = (t.name || '').trim().toLowerCase();
+        if (title.length >= 3) {
+          for (const [name, file] of availableFiles.entries()) {
+            if (usedFiles.has(name)) continue;
+            const fClean = cleanBaseName(name);
+            if (fClean === title || fClean.includes(title)) {
+              t.assignedAudioFile = file;
+              usedFiles.add(name);
+              break;
+            }
+          }
+        }
+      });
+
+      updateMatchBadges();
+    }
+
+    function updateMatchBadges() {
+      const matched = libraryTracks.filter(t => !!t.assignedAudioFile || t.location === 'demo_sub_140.wav').length;
+      const total = libraryTracks.length;
+      const badge = document.getElementById('matchSummaryBadge');
+      if (badge) {
+        badge.textContent = `${matched}/${total}`;
+      }
+    }
+
+    // App Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      audioPlayer = document.getElementById('audioPlayer');
+      setupDropZone();
+      setupFolderInput();
+      setupSingleAudioInput();
+      setupSearchAndFilters();
+      setupAudioListeners();
+      setupWaveformDeckDrop();
+      setupWaveformTouchControls();
+      setupKeyboardShortcuts();
+      loadDemoLibrary();
+      startWaveformAnimation();
+    });
+
+    function setupFolderInput() {
+      const folderInput = document.getElementById('musicFolderInput');
+      folderInput.addEventListener('change', (e) => {
+        const files = Array.from(e.target.files);
+        let count = 0;
+        files.forEach(f => {
+          const ext = f.name.toLowerCase();
+          if (ext.endsWith('.wav') || ext.endsWith('.mp3') || ext.endsWith('.flac') || ext.endsWith('.aif') || ext.endsWith('.aiff') || ext.endsWith('.m4a')) {
+            localAudioFilesMap.set(f.name.toLowerCase(), f);
+            count++;
+          }
+        });
+
+        runStrictLibraryMatch();
+        const matched = libraryTracks.filter(t => !!t.assignedAudioFile).length;
+        showNotification(`Loaded ${count} audio files • Matched ${matched} of ${libraryTracks.length} tracks!`);
+        renderTable();
+        if (selectedTrack) selectTrack(selectedTrack);
+      });
+    }
+
+    function setupSingleAudioInput() {
+      const singleInput = document.getElementById('singleAudioInput');
+      singleInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          const file = e.target.files[0];
+          loadDirectAudioFile(file);
+        }
+      });
+    }
+
+    function setupDropZone() {
+      const dropZone = document.getElementById('dropZone');
+      const fileInput = document.getElementById('fileInput');
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropZone.classList.remove('dragover');
+        });
+      });
+
+      dropZone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) handleDroppedFiles(files);
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleDroppedFiles(e.target.files);
+      });
+    }
+
+    function handleDroppedFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
+        const lower = f.name.toLowerCase();
+        if (lower.endsWith('.xml')) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            parseRekordboxXML(e.target.result);
+          };
+          reader.readAsText(f);
+          return;
+        } else if (lower.endsWith('.wav') || lower.endsWith('.mp3') || lower.endsWith('.flac') || lower.endsWith('.aif') || lower.endsWith('.aiff')) {
+          localAudioFilesMap.set(lower, f);
+          loadDirectAudioFile(f);
+        }
+      }
+    }
+
+    function setupWaveformDeckDrop() {
+      const deck = document.getElementById('waveformDeck');
+      ['dragenter', 'dragover'].forEach(eName => {
+        deck.addEventListener(eName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          deck.style.borderColor = 'var(--matrix-green)';
+        });
+      });
+      ['dragleave', 'drop'].forEach(eName => {
+        deck.addEventListener(eName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          deck.style.borderColor = 'var(--w95-bevel-light)';
+        });
+      });
+      deck.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const file = files[0];
+          const ext = file.name.toLowerCase();
+          if (ext.endsWith('.wav') || ext.endsWith('.mp3') || ext.endsWith('.flac') || ext.endsWith('.aif') || ext.endsWith('.aiff') || ext.endsWith('.m4a')) {
+            loadDirectAudioFile(file);
+          }
+        }
+      });
+    }
+
+    function loadDemoLibrary() {
+      libraryTracks = [...DEMO_DATA];
+      onLibraryLoaded();
+      showNotification("Loaded 30-track Demo Collection (140 Bass, Halftime, Phonk)");
+    }
+
+    function parseRekordboxXML(xmlText) {
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+        const trackNodes = xmlDoc.querySelectorAll('COLLECTION > TRACK, TRACK');
+
+        if (!trackNodes || trackNodes.length === 0) {
+          alert('No <TRACK> elements found in this XML file.');
+          return;
+        }
+
+        const parsed = [];
+        trackNodes.forEach((node, idx) => {
+          const rawKey = node.getAttribute('Tonality') || node.getAttribute('Key') || '';
+          const normKey = normalizeKey(rawKey) || '8A';
+          const rawBpm = parseFloat(node.getAttribute('AverageBpm') || node.getAttribute('Bpm') || '0');
+          const bpm = isNaN(rawBpm) || rawBpm === 0 ? 140.0 : Math.round(rawBpm * 10) / 10;
+          const duration = parseInt(node.getAttribute('TotalTime') || '0');
+
+          parsed.push({
+            id: node.getAttribute('TrackID') || String(idx + 1),
+            name: node.getAttribute('Name') || 'Unknown Title',
+            artist: node.getAttribute('Artist') || 'Unknown Artist',
+            album: node.getAttribute('Album') || '',
+            genre: node.getAttribute('Genre') || 'Electronic',
+            label: node.getAttribute('Label') || 'Independent',
+            year: parseInt(node.getAttribute('Year') || '0') || 2024,
+            bpm: bpm,
+            key: normKey,
+            rawKey: rawKey,
+            duration: duration,
+            location: node.getAttribute('Location') || '',
+            bitrate: node.getAttribute('BitRate') || '',
+            playcount: parseInt(node.getAttribute('PlayCount') || '0'),
+            rating: parseInt(node.getAttribute('Rating') || '0')
+          });
+        });
+
+        libraryTracks = parsed;
+        runStrictLibraryMatch();
+        onLibraryLoaded();
+
+        document.getElementById('dropzoneStatus').textContent = `Loaded collection with ${parsed.length} tracks`;
+        showNotification(`Parsed ${parsed.length} tracks from Rekordbox XML.`);
+      } catch (err) {
+        console.error('XML Parse Error:', err);
+        alert('Failed to parse XML: ' + err.message);
+      }
+    }
+
+    let waveformColorMode = 'rgb'; // 'rgb' (Rekordbox RGB), '3band' (CDJ-3000), 'blue' (CDJ-2000)
+
+    function toggleWaveformColorMode() {
+      if (waveformColorMode === 'rgb') {
+        waveformColorMode = '3band';
+        showNotification("Waveform: CDJ-3000 3-Band Mode (Blue Sub / Orange Mids / White Highs)");
+      } else if (waveformColorMode === '3band') {
+        waveformColorMode = 'blue';
+        showNotification("Waveform: Classic CDJ-2000 Blue Mode");
+      } else {
+        waveformColorMode = 'rgb';
+        showNotification("Waveform: Pioneer Rekordbox RGB Mode (Red Bass / Green Mids / Cyan-Blue Highs)");
+      }
+      const btn = document.getElementById('colorModeBtn');
+      if (btn) btn.textContent = `COLOR: ${waveformColorMode.toUpperCase()}`;
+      drawWaveform();
+    }
+
+    function toggleAnalyticsDrawer() {
+      const drawer = document.getElementById('analyticsRow');
+      const btn = document.getElementById('toggleAnalyticsBtn');
+      if (drawer.style.display === 'none' || !drawer.style.display) {
+        drawer.style.display = 'grid';
+        btn.innerHTML = '📊 HIDE CHARTS ▲';
+        renderCharts();
+      } else {
+        drawer.style.display = 'none';
+        btn.innerHTML = '📊 SHOW CHARTS ▼';
+      }
+    }
+
+    function onLibraryLoaded() {
+      document.getElementById('waveformDeck').style.display = 'flex';
+      document.getElementById('statsRow').style.display = 'block';
+      document.getElementById('analyticsRow').style.display = 'none'; // Collapsed by default for zero scrolling!
+      document.getElementById('workspaceGrid').style.display = 'grid';
+
+      updateStats();
+      updateMatchBadges();
+      populateFilterOptions();
+      renderCharts();
+      renderTable();
+
+      if (libraryTracks.length > 0) {
+        selectTrack(libraryTracks[0]);
+      }
+    }
+
+    function updateStats() {
+      const total = libraryTracks.length;
+      document.getElementById('statTracks').textContent = total.toLocaleString();
+
+      let totalSecs = libraryTracks.reduce((acc, t) => acc + (t.duration || 240), 0);
+      let hrs = (totalSecs / 3600).toFixed(1);
+      document.getElementById('statPlaytime').textContent = `${hrs} hrs total music`;
+
+      const bpms = libraryTracks.map(t => t.bpm).filter(b => b > 0);
+      const minBpm = Math.min(...bpms);
+      const maxBpm = Math.max(...bpms);
+      const avgBpm = (bpms.reduce((a, b) => a + b, 0) / bpms.length).toFixed(1);
+      document.getElementById('statBpmRange').textContent = `${minBpm} - ${maxBpm}`;
+      document.getElementById('statAvgBpm').textContent = `Avg: ${avgBpm} BPM`;
+
+      const artistCounts = {};
+      libraryTracks.forEach(t => {
+        artistCounts[t.artist] = (artistCounts[t.artist] || 0) + 1;
+      });
+      const uniqueArtists = Object.keys(artistCounts).length;
+      const topArtist = Object.entries(artistCounts).sort((a,b) => b[1] - a[1])[0];
+      const elArtists = document.getElementById('statArtists');
+      if (elArtists) elArtists.textContent = uniqueArtists;
+      const elTopArtist = document.getElementById('statTopArtist');
+      if (elTopArtist) elTopArtist.textContent = topArtist ? `Top: ${topArtist[0]} (${topArtist[1]})` : '-';
+
+      const labelCounts = {};
+      libraryTracks.forEach(t => {
+        if (t.label) labelCounts[t.label] = (labelCounts[t.label] || 0) + 1;
+      });
+      const uniqueLabels = Object.keys(labelCounts).length;
+      const topLabel = Object.entries(labelCounts).sort((a,b) => b[1] - a[1])[0];
+      const elLabels = document.getElementById('statLabels');
+      if (elLabels) elLabels.textContent = uniqueLabels;
+      const elTopLabel = document.getElementById('statTopLabel');
+      if (elTopLabel) elTopLabel.textContent = topLabel ? `Top: ${topLabel[0]} (${topLabel[1]})` : '-';
+
+      const keyCounts = {};
+      let minorCount = 0;
+      libraryTracks.forEach(t => {
+        if (t.key) {
+          keyCounts[t.key] = (keyCounts[t.key] || 0) + 1;
+          if (t.key.endsWith('A')) minorCount++;
+        }
+      });
+      const topKey = Object.entries(keyCounts).sort((a,b) => b[1] - a[1])[0];
+      document.getElementById('statTopKey').textContent = topKey ? `${topKey[0]} (${THEORY[topKey[0]] ? THEORY[topKey[0]].name.split('/')[0].trim() : ''})` : '-';
+      let minorPct = Math.round((minorCount / total) * 100);
+      document.getElementById('statMinorPct').textContent = `${minorPct}% Minor Keys`;
+    }
+
+    function populateFilterOptions() {
+      const genreSelect = document.getElementById('genreFilter');
+      const keySelect = document.getElementById('keyFilter');
+
+      const genres = [...new Set(libraryTracks.map(t => t.genre).filter(Boolean))].sort();
+      genreSelect.innerHTML = '<option value="">All Genres</option>' + genres.map(g => `<option value="${g}">${g}</option>`).join('');
+
+      const keys = [...new Set(libraryTracks.map(t => t.key).filter(Boolean))].sort((a,b) => {
+        let numA = parseInt(a), numB = parseInt(b);
+        if (numA !== numB) return numA - numB;
+        return a.slice(-1).localeCompare(b.slice(-1));
+      });
+      keySelect.innerHTML = '<option value="">All Keys</option>' + keys.map(k => {
+        let info = THEORY[k];
+        let name = info ? info.name.split('/')[0].trim() : '';
+        return `<option value="${k}">${k} - ${name}</option>`;
+      }).join('');
+    }
+
+    function renderCharts() {
+      const drawer = document.getElementById('analyticsRow');
+      if (drawer && (drawer.style.display === 'none' || !drawer.style.display)) {
+        return; // Do not render when collapsed (prevents 0px canvas dimensions)
+      }
+      renderBpmChart();
+      renderCamelotChart();
+    }
+
+    function renderBpmChart() {
+      const canvas = document.getElementById('bpmChart');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 20 || rect.height <= 20) return; // Guard against hidden/zero-size canvas
+
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const bins = [
+        { label: 'Halftime', min: 60, max: 95, color: '#b537f2', count: 0 },
+        { label: '120-132', min: 120, max: 132, color: '#00ff88', count: 0 },
+        { label: '140 Dub', min: 136, max: 145, color: '#00f0ff', count: 0 },
+        { label: 'Phonk', min: 146, max: 165, color: '#ffaa00', count: 0 },
+        { label: '174 D&B', min: 166, max: 180, color: '#ff3344', count: 0 }
+      ];
+
+      libraryTracks.forEach(t => {
+        bins.forEach(b => {
+          if (t.bpm >= b.min && t.bpm <= b.max) b.count++;
+        });
+      });
+
+      const maxCount = Math.max(...bins.map(b => b.count), 1);
+      const barWidth = (w - 40) / bins.length;
+      const chartBottom = h - 25;
+      const chartHeight = chartBottom - 15;
+
+      bins.forEach((b, i) => {
+        const x = 20 + i * barWidth;
+        const barH = (b.count / maxCount) * chartHeight;
+        const y = chartBottom - barH;
+
+        ctx.fillStyle = b.color;
+        ctx.fillRect(x + 6, y, barWidth - 12, barH);
+
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(x + 6, y, barWidth - 12, barH);
+
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 10px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(b.count, x + barWidth / 2, y - 4);
+
+        ctx.fillStyle = '#62728c';
+        ctx.font = '10px monospace';
+        ctx.fillText(b.label, x + barWidth / 2, chartBottom + 14);
+      });
+    }
+
+    function renderCamelotChart() {
+      const canvas = document.getElementById('camelotChart');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 20 || rect.height <= 20) return; // Guard against hidden/zero-size canvas
+
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const radius = Math.max(20, Math.min(cx, cy) - 12);
+
+      ctx.clearRect(0, 0, w, h);
+
+      const counts = Array(13).fill(0);
+      libraryTracks.forEach(t => {
+        if (t.key) {
+          let num = parseInt(t.key);
+          if (num >= 1 && num <= 12) counts[num]++;
+        }
+      });
+
+      const maxCount = Math.max(...counts.slice(1), 1);
+      const angleStep = (Math.PI * 2) / 12;
+
+      for (let i = 1; i <= 12; i++) {
+        const startAngle = (i - 1) * angleStep - Math.PI / 2;
+        const endAngle = i * angleStep - Math.PI / 2;
+        const val = counts[i];
+        const wedgeR = Math.max(4, 18 + (val / maxCount) * Math.max(0, radius - 18));
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, wedgeR, startAngle, endAngle);
+        ctx.closePath();
+
+        ctx.fillStyle = val > 0 ? 'rgba(0, 255, 102, 0.35)' : 'rgba(255, 255, 255, 0.05)';
+        ctx.fill();
+
+        ctx.strokeStyle = val > 0 ? 'var(--matrix-green)' : '#1e2636';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        const midAngle = startAngle + angleStep / 2;
+        const tx = cx + Math.cos(midAngle) * (radius - 2);
+        const ty = cy + Math.sin(midAngle) * (radius - 2);
+
+        ctx.fillStyle = val > 0 ? '#fff' : '#445166';
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${i}A/B`, tx, ty);
+      }
+
+      ctx.beginPath();
+      const centerR = Math.max(2, Math.min(14, radius / 3));
+      ctx.arc(cx, cy, centerR, 0, Math.PI * 2);
+      ctx.fillStyle = '#04070a';
+      ctx.fill();
+      ctx.strokeStyle = 'var(--cyber-cyan)';
+      ctx.stroke();
+
+      ctx.fillStyle = 'var(--cyber-cyan)';
+      ctx.font = 'bold 8px monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('KEY', cx, cy);
+    }
+
+    function setupSearchAndFilters() {
+      const searchInput = document.getElementById('searchInput');
+      const genreFilter = document.getElementById('genreFilter');
+      const keyFilter = document.getElementById('keyFilter');
+      const tempoFilter = document.getElementById('tempoFilter');
+
+      [searchInput, genreFilter, keyFilter, tempoFilter].forEach(el => {
+        el.addEventListener('input', renderTable);
+      });
+    }
+
+    function getFilteredTracks() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const g = document.getElementById('genreFilter').value;
+      const k = document.getElementById('keyFilter').value;
+      const tempo = document.getElementById('tempoFilter').value;
+
+      return libraryTracks.filter(t => {
+        if (q) {
+          const match = t.name.toLowerCase().includes(q) ||
+                        t.artist.toLowerCase().includes(q) ||
+                        (t.label && t.label.toLowerCase().includes(q)) ||
+                        (t.genre && t.genre.toLowerCase().includes(q)) ||
+                        t.key.toLowerCase().includes(q) ||
+                        String(t.bpm).includes(q);
+          if (!match) return false;
+        }
+        if (g && t.genre !== g) return false;
+        if (k && t.key !== k) return false;
+        if (tempo) {
+          if (tempo === 'halftime' && (t.bpm < 60 || t.bpm > 95)) return false;
+          if (tempo === 'house' && (t.bpm < 120 || t.bpm > 132)) return false;
+          if (tempo === 'dubstep' && (t.bpm < 136 || t.bpm > 145)) return false;
+          if (tempo === 'phonk' && (t.bpm < 145 || t.bpm > 165)) return false;
+          if (tempo === 'dnb' && (t.bpm < 165 || t.bpm > 180)) return false;
+        }
+        return true;
+      });
+    }
+
+    function sortTable(col) {
+      if (sortCol === col) {
+        sortAsc = !sortAsc;
+      } else {
+        sortCol = col;
+        sortAsc = true;
+      }
+      renderTable();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('tracksTbody');
+      let tracks = getFilteredTracks();
+
+      tracks.sort((a, b) => {
+        let valA = a[sortCol];
+        let valB = b[sortCol];
+        if (typeof valA === 'string') {
+          return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return sortAsc ? valA - valB : valB - valA;
+      });
+
+      if (tracks.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="empty-state">No matching tracks found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = tracks.map(t => {
+        const isSelected = selectedTrack && selectedTrack.id === t.id;
+        const keyNum = parseInt(t.key) || 1;
+        const theory = THEORY[t.key];
+        const keyName = theory ? theory.name.split('/')[0].trim() : '';
+        const hasRealAudio = !!t.assignedAudioFile || t.location === 'demo_sub_140.wav';
+
+        return `
+          <tr class="${isSelected ? 'selected' : ''}" onclick="selectTrackById('${t.id}')" ondragover="event.preventDefault()" ondrop="handleRowFileDrop(event, '${t.id}')" title="${hasRealAudio ? 'Audio file ready' : 'Drop WAV onto this row to link!'}">
+            <td>
+              <button class="btn-w95 ${hasRealAudio ? 'btn-green' : ''} btn-sm" style="padding: 2px 6px; font-size: 10px;" onclick="event.stopPropagation(); playTrackById('${t.id}')" title="${hasRealAudio ? 'Play Real Audio File' : 'Click to link audio file'}">
+                ${hasRealAudio ? '🔊 PLAY' : '+ LINK'}
+              </button>
+            </td>
+            <td>
+              <div style="font-weight: 600; color: #fff;">${escapeHtml(t.name)}</div>
+            </td>
+            <td>
+              <span class="tag-interactive" onclick="event.stopPropagation(); openArtistDossier('${escapeHtml(t.artist)}')">${escapeHtml(t.artist)}</span>
+            </td>
+            <td>
+              <span class="badge-bpm">${t.bpm.toFixed(1)}</span>
+            </td>
+            <td>
+              <span class="badge-key key-${keyNum}">${t.key} <span style="font-weight: normal; opacity: 0.8;">${keyName}</span></span>
+            </td>
+            <td>
+              <span style="color: var(--text-dim); font-size: 11px;">${escapeHtml(t.genre || '-')}</span>
+            </td>
+            <td>
+              <span class="tag-interactive" onclick="event.stopPropagation(); openLabelDossier('${escapeHtml(t.label || '')}')">${escapeHtml(t.label || 'Independent')}</span>
+            </td>
+            <td>
+              <span style="color: var(--text-dim); font-size: 11px;">${t.year || '-'}</span>
+            </td>
+            <td>
+              <button class="btn-w95 btn-sm" onclick="event.stopPropagation(); addToSetlist('${t.id}')">+ Set</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function handleRowFileDrop(e, trackId) {
+      e.preventDefault();
+      e.stopPropagation();
+      const track = libraryTracks.find(t => t.id === trackId);
+      if (!track || !e.dataTransfer.files || e.dataTransfer.files.length === 0) return;
+
+      const file = e.dataTransfer.files[0];
+      localAudioFilesMap.set(file.name.toLowerCase(), file);
+      track.assignedAudioFile = file;
+      track.peaks = null;
+      track.decodedBuffer = null;
+
+      showNotification(`Linked "${file.name}" to ${track.name}!`);
+      updateMatchBadges();
+      renderTable();
+      selectTrack(track);
+      playTrack();
+    }
+
+    function selectTrackById(id) {
+      const track = libraryTracks.find(t => t.id === id);
+      if (track) selectTrack(track);
+    }
+
+    function playTrackById(id) {
+      const track = libraryTracks.find(t => t.id === id);
+      if (track) {
+        selectTrack(track);
+        playTrack();
+      }
+    }
+
+    // Select Track & Load
+    function selectTrack(track) {
+      selectedTrack = track;
+      trackDuration = track.duration || 240;
+      currentTime = 0;
+      bufferPauseOffset = 0;
+      activeLoop = null;
+
+      stopAudioBufferPlayback();
+      if (audioPlayer) audioPlayer.pause();
+
+      document.getElementById('inspTitle').textContent = track.name;
+      document.getElementById('inspArtist').textContent = track.artist;
+      document.getElementById('deckTrackTitle').textContent = track.name.toUpperCase();
+      document.getElementById('deckTrackArtist').textContent = `${track.artist} // ${track.genre} // ${track.bpm.toFixed(1)} BPM`;
+
+      const pills = document.getElementById('inspMetaPills');
+      const keyNum = parseInt(track.key) || 1;
+      pills.innerHTML = `
+        <span class="badge-key key-${keyNum}">${track.key}</span>
+        <span class="badge-bpm">${track.bpm.toFixed(1)} BPM</span>
+        <span class="tag-interactive" onclick="openArtistDossier('${escapeHtml(track.artist)}')">${escapeHtml(track.artist)}</span>
+        <span class="tag-interactive" onclick="openLabelDossier('${escapeHtml(track.label)}')">${escapeHtml(track.label)}</span>
+        <span style="font-size: 11px; color: var(--text-dim); padding: 2px 4px;">${track.genre} • ${track.year}</span>
+      `;
+
+      const theory = THEORY[track.key];
+      const theoryBox = document.getElementById('theoryBox');
+      if (theory) {
+        theoryBox.style.display = 'block';
+        document.getElementById('thKeyName').textContent = `${theory.name} (${theory.mode.toUpperCase()})`;
+        document.getElementById('thSubHz').textContent = theory.subHz;
+
+        document.getElementById('thTriads').innerHTML = theory.triads.map(c => `
+          <span class="chord-pill" onclick="playChordSynth('${c}')" title="Click to hear ${c}">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> ${c}
+          </span>
+        `).join('');
+
+        document.getElementById('thSevenths').innerHTML = theory.sevenths.map(c => `
+          <span class="chord-pill" style="border-color: var(--cyber-cyan); color: var(--cyber-cyan);" onclick="playChordSynth('${c}')" title="Click to hear ${c}">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> ${c}
+          </span>
+        `).join('');
+
+        document.getElementById('thProgressions').textContent = theory.progressions;
+      } else {
+        theoryBox.style.display = 'none';
+      }
+
+      document.getElementById('blendsSection').style.display = 'block';
+      renderBlendCandidates();
+
+      checkAndLoadAudioSource(track);
+
+      // Highlight row
+      const rows = document.querySelectorAll('#tracksTbody tr');
+      const tracks = getFilteredTracks();
+      rows.forEach((r, idx) => {
+        if (tracks[idx] && tracks[idx].id === track.id) {
+          r.classList.add('selected');
+        } else {
+          r.classList.remove('selected');
+        }
+      });
+    }
+
+    function checkAndLoadAudioSource(track) {
+      const badge = document.getElementById('audioSourceBadge');
+
+      if (track.decodedBuffer && track.peaks) {
+        currentDecodedBuffer = track.decodedBuffer;
+        trackDuration = currentDecodedBuffer.duration;
+        badge.className = 'audio-badge badge-real';
+        badge.textContent = `● REAL AUDIO: ${track.assignedAudioFile ? track.assignedAudioFile.name : track.name}`;
+        drawWaveform();
+        updateTimeReadout();
+        return;
+      }
+
+      currentDecodedBuffer = null;
+
+      if (track.assignedAudioFile) {
+        badge.className = 'audio-badge badge-real';
+        badge.textContent = `● REAL AUDIO: ${track.assignedAudioFile.name}`;
+        decodeAudioFileIntoWebAudio(track, track.assignedAudioFile, false);
+        return;
+      }
+
+      const isLocalServer = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (isLocalServer && track.location) {
+        badge.className = 'audio-badge badge-real';
+        badge.textContent = '● SERVER STREAM READY';
+        const streamUrl = `/audio?path=${encodeURIComponent(track.location)}`;
+        fetchAndDecodeStream(track, streamUrl);
+        return;
+      }
+
+      if (track.location === 'demo_sub_140.wav') {
+        badge.className = 'audio-badge badge-real';
+        badge.textContent = '● DEMO SUB-140';
+        fetchAndDecodeStream(track, 'demo_sub_140.wav');
+        return;
+      }
+
+      badge.className = 'audio-badge badge-standby';
+      badge.textContent = '○ UNLINKED';
+      audioPlayer.src = '';
+      drawWaveform();
+    }
+
+    // High-Compatibility Pure JavaScript PCM Decoder (WAV 16/24/32-bit & AIFF)
+    function parsePcmFallback(arrayBuffer, ctx) {
+      if (!arrayBuffer || arrayBuffer.byteLength < 44) return null;
+      const view = new DataView(arrayBuffer);
+
+      // 1. RIFF / WAVE (16-bit, 24-bit, 32-bit float)
+      if (view.getUint32(0, false) === 0x52494646 && view.getUint32(8, false) === 0x57415645) {
+        let pos = 12;
+        let numChannels = 2;
+        let sampleRate = 44100;
+        let bitsPerSample = 16;
+        let audioFormat = 1;
+        let dataOffset = 0;
+        let dataLength = 0;
+
+        while (pos < view.byteLength - 8) {
+          const chunkId = String.fromCharCode(view.getUint8(pos), view.getUint8(pos+1), view.getUint8(pos+2), view.getUint8(pos+3));
+          const chunkLen = view.getUint32(pos + 4, true);
+          pos += 8;
+
+          if (chunkId === 'fmt ') {
+            audioFormat = view.getUint16(pos, true);
+            numChannels = view.getUint16(pos + 2, true);
+            sampleRate = view.getUint32(pos + 4, true);
+            bitsPerSample = view.getUint16(pos + 14, true);
+          } else if (chunkId === 'data') {
+            dataOffset = pos;
+            dataLength = chunkLen;
+            break;
+          }
+          pos += chunkLen;
+        }
+
+        if (dataOffset > 0 && numChannels > 0 && sampleRate > 0) {
+          const bytesPerSample = bitsPerSample / 8;
+          const blockAlign = numChannels * bytesPerSample;
+          const maxDataBytes = Math.min(dataLength, view.byteLength - dataOffset);
+          const numFrames = Math.floor(maxDataBytes / blockAlign);
+
+          const audioBuffer = ctx.createBuffer(numChannels, numFrames, sampleRate);
+          const channelBuffers = [];
+          for (let c = 0; c < numChannels; c++) {
+            channelBuffers.push(audioBuffer.getChannelData(c));
+          }
+
+          let offset = dataOffset;
+
+          if (bitsPerSample === 16) {
+            for (let i = 0; i < numFrames; i++) {
+              for (let c = 0; c < numChannels; c++) {
+                const val = view.getInt16(offset, true);
+                channelBuffers[c][i] = val / 32768.0;
+                offset += 2;
+              }
+            }
+            return audioBuffer;
+          } else if (bitsPerSample === 24) {
+            for (let i = 0; i < numFrames; i++) {
+              for (let c = 0; c < numChannels; c++) {
+                const b0 = view.getUint8(offset);
+                const b1 = view.getUint8(offset + 1);
+                const b2 = view.getUint8(offset + 2);
+                let val = (b0 | (b1 << 8) | (b2 << 16));
+                if (val & 0x800000) val -= 0x1000000;
+                channelBuffers[c][i] = val / 8388608.0;
+                offset += 3;
+              }
+            }
+            return audioBuffer;
+          } else if (bitsPerSample === 32 && audioFormat === 3) {
+            for (let i = 0; i < numFrames; i++) {
+              for (let c = 0; c < numChannels; c++) {
+                channelBuffers[c][i] = view.getFloat32(offset, true);
+                offset += 4;
+              }
+            }
+            return audioBuffer;
+          }
+        }
+      }
+
+      // 2. FORM / AIFF
+      if (view.getUint32(0, false) === 0x464F524D) {
+        const formType = String.fromCharCode(view.getUint8(8), view.getUint8(9), view.getUint8(10), view.getUint8(11));
+        if (formType === 'AIFF' || formType === 'AIFC') {
+          let pos = 12;
+          let numChannels = 2;
+          let numSampleFrames = 0;
+          let sampleSize = 16;
+          let sampleRate = 44100;
+          let soundDataOffset = 0;
+
+          while (pos < view.byteLength - 8) {
+            const chunkId = String.fromCharCode(view.getUint8(pos), view.getUint8(pos+1), view.getUint8(pos+2), view.getUint8(pos+3));
+            const chunkLen = view.getUint32(pos + 4, false);
+            pos += 8;
+
+            if (chunkId === 'COMM') {
+              numChannels = view.getInt16(pos, false);
+              numSampleFrames = view.getUint32(pos + 2, false);
+              sampleSize = view.getInt16(pos + 6, false);
+              const exp = view.getUint16(pos + 8, false) - 16383;
+              const mantissa = view.getUint32(pos + 10, false);
+              sampleRate = Math.round(mantissa * Math.pow(2, exp - 31));
+              if (sampleRate <= 8000 || sampleRate >= 192000) sampleRate = 44100;
+            } else if (chunkId === 'SSND') {
+              const offsetInside = view.getUint32(pos, false);
+              soundDataOffset = pos + 8 + offsetInside;
+              break;
+            }
+            pos += chunkLen;
+          }
+
+          if (soundDataOffset > 0 && numChannels > 0 && numSampleFrames > 0) {
+            const maxFrames = Math.min(numSampleFrames, Math.floor((view.byteLength - soundDataOffset) / (numChannels * (sampleSize / 8))));
+            const audioBuffer = ctx.createBuffer(numChannels, maxFrames, sampleRate);
+            const channelBuffers = [];
+            for (let c = 0; c < numChannels; c++) {
+              channelBuffers.push(audioBuffer.getChannelData(c));
+            }
+
+            let offset = soundDataOffset;
+            if (sampleSize === 16) {
+              for (let i = 0; i < maxFrames; i++) {
+                for (let c = 0; c < numChannels; c++) {
+                  channelBuffers[c][i] = view.getInt16(offset, false) / 32768.0;
+                  offset += 2;
+                }
+              }
+              return audioBuffer;
+            } else if (sampleSize === 24) {
+              for (let i = 0; i < maxFrames; i++) {
+                for (let c = 0; c < numChannels; c++) {
+                  const b0 = view.getUint8(offset);
+                  const b1 = view.getUint8(offset + 1);
+                  const b2 = view.getUint8(offset + 2);
+                  let val = ((b0 << 16) | (b1 << 8) | b2);
+                  if (val & 0x800000) val -= 0x1000000;
+                  channelBuffers[c][i] = val / 8388608.0;
+                  offset += 3;
+                }
+              }
+              return audioBuffer;
+            }
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function decodeAudioFileIntoWebAudio(track, file, autoPlay = false) {
+      if (!file) return;
+      isAudioDecoding = true;
+      playOnDecodeComplete = autoPlay;
+
+      const badge = document.getElementById('audioSourceBadge');
+      if (badge) {
+        badge.className = 'audio-badge badge-standby';
+        badge.textContent = `⏳ DECODING: ${file.name}...`;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const ctx = getAudioContext();
+        const rawArrayBuffer = e.target.result;
+        const bufferCopy = rawArrayBuffer.slice(0);
+
+        // Stage 1: Try browser native Web Audio decoder
+        ctx.decodeAudioData(bufferCopy).then(buffer => {
+          isAudioDecoding = false;
+          track.decodedBuffer = buffer;
+          track.peaks = extractPeaks(buffer);
+
+          if (selectedTrack && selectedTrack.id === track.id) {
+            currentDecodedBuffer = buffer;
+            trackDuration = buffer.duration;
+            drawWaveform();
+            updateTimeReadout();
+
+            if (badge) {
+              badge.className = 'audio-badge badge-real';
+              badge.textContent = `● REAL AUDIO: ${file.name} (${formatTime(trackDuration)})`;
+            }
+
+            if (playOnDecodeComplete) {
+              playOnDecodeComplete = false;
+              playDecodedAudio(0);
+            }
+          }
+        }).catch(err => {
+          console.warn("Native decodeAudioData failed on", file.name, "Attempting pure JS PCM fallback decoder...");
+
+          // Stage 2: Pure JavaScript PCM Decoder (Handles 16/24/32-bit WAV with BEXT/ID3 metadata chunks & AIFF)
+          try {
+            const pcmBuffer = parsePcmFallback(rawArrayBuffer, ctx);
+            if (pcmBuffer) {
+              isAudioDecoding = false;
+              track.decodedBuffer = pcmBuffer;
+              track.peaks = extractPeaks(pcmBuffer);
+
+              if (selectedTrack && selectedTrack.id === track.id) {
+                currentDecodedBuffer = pcmBuffer;
+                trackDuration = pcmBuffer.duration;
+                drawWaveform();
+                updateTimeReadout();
+
+                if (badge) {
+                  badge.className = 'audio-badge badge-real';
+                  badge.textContent = `● REAL AUDIO (PCM DECODER): ${file.name} (${formatTime(trackDuration)})`;
+                }
+
+                showNotification(`Decoded ${file.name} with High-Compatibility PCM Decoder!`);
+
+                if (playOnDecodeComplete) {
+                  playOnDecodeComplete = false;
+                  playDecodedAudio(0);
+                }
+              }
+              return;
+            }
+          } catch(pcmErr) {
+            console.warn("Pure PCM parser exception:", pcmErr);
+          }
+
+          // Stage 3: HTML5 audio element fallback
+          isAudioDecoding = false;
+          console.warn("PCM parser did not match, trying HTML5 audio element:", err);
+          const objUrl = URL.createObjectURL(file);
+          audioPlayer.src = objUrl;
+          audioPlayer.load();
+
+          if (badge) {
+            badge.className = 'audio-badge badge-real';
+            badge.textContent = `● AUDIO (HTML5): ${file.name}`;
+          }
+
+          if (playOnDecodeComplete) {
+            playOnDecodeComplete = false;
+            audioPlayer.play().catch(e => {
+              showNotification(`Audio format note on "${file.name}": ${e.message}. If this is an ALAC/M4A or non-standard file, convert to 16/24-bit WAV or MP3.`);
+            });
+          }
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function fetchAndDecodeStream(track, url) {
+      fetch(url)
+        .then(res => res.arrayBuffer())
+        .then(buf => {
+          const ctx = getAudioContext();
+          return ctx.decodeAudioData(buf);
+        })
+        .then(buffer => {
+          track.decodedBuffer = buffer;
+          track.peaks = extractPeaks(buffer);
+          if (selectedTrack && selectedTrack.id === track.id) {
+            currentDecodedBuffer = buffer;
+            trackDuration = buffer.duration;
+            drawWaveform();
+            updateTimeReadout();
+          }
+        })
+        .catch(err => {
+          audioPlayer.src = url;
+          audioPlayer.load();
+        });
+    }
+
+    function loadDirectAudioFile(file) {
+      if (selectedTrack) {
+        selectedTrack.assignedAudioFile = file;
+        selectedTrack.decodedBuffer = null;
+        selectedTrack.peaks = null;
+        decodeAudioFileIntoWebAudio(selectedTrack, file, true);
+      }
+      updateMatchBadges();
+      renderTable();
+      showNotification(`Loaded audio file: ${file.name}`);
+    }
+
+    function extractPeaks(buffer) {
+      const channelData = buffer.getChannelData(0);
+      const samplesPerPixel = Math.floor(channelData.length / 800);
+      const peaks = [];
+
+      for (let i = 0; i < 800; i++) {
+        const start = i * samplesPerPixel;
+        const end = start + samplesPerPixel;
+        let max = 0;
+        for (let j = start; j < end; j++) {
+          const val = Math.abs(channelData[j]);
+          if (val > max) max = val;
+        }
+        peaks.push(max);
+      }
+      return peaks;
+    }
+
+    // Playback Engine
+    async function playTrack() {
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') {
+        try { await ctx.resume(); } catch(e) {}
+      }
+
+      if (currentDecodedBuffer) {
+        playDecodedAudio(currentTime);
+        return;
+      }
+
+      if (isAudioDecoding) {
+        showNotification("⏳ Decoding audio file in memory... Starting automatically!");
+        playOnDecodeComplete = true;
+        return;
+      }
+
+      if (selectedTrack && selectedTrack.assignedAudioFile) {
+        decodeAudioFileIntoWebAudio(selectedTrack, selectedTrack.assignedAudioFile, true);
+        return;
+      }
+
+      if (audioPlayer && audioPlayer.src && audioPlayer.src !== window.location.href) {
+        audioPlayer.play().catch(e => showNotification(`Audio notice: ${e.message}`));
+        return;
+      }
+
+      showNotification(`⚠️ Audio not linked for "${selectedTrack ? selectedTrack.name : 'track'}". Drag WAV here or link file.`);
+      openMatchOverviewModal();
+    }
+
+    async function togglePlayPause() {
+      const ctx = getAudioContext();
+      if (ctx.state === 'suspended') {
+        try { await ctx.resume(); } catch(e) {}
+      }
+
+      if (isBufferPlaying) {
+        pauseDecodedAudio();
+        return;
+      }
+
+      if (currentDecodedBuffer) {
+        playDecodedAudio(currentTime);
+        return;
+      }
+
+      if (isAudioDecoding) {
+        showNotification("⏳ Decoding audio file in memory... Starting automatically!");
+        playOnDecodeComplete = true;
+        return;
+      }
+
+      if (selectedTrack && selectedTrack.assignedAudioFile) {
+        decodeAudioFileIntoWebAudio(selectedTrack, selectedTrack.assignedAudioFile, true);
+        return;
+      }
+
+      if (audioPlayer && audioPlayer.src && audioPlayer.src !== window.location.href) {
+        if (audioPlayer.paused) {
+          audioPlayer.play().catch(e => showNotification(`Audio notice: ${e.message}`));
+        } else {
+          audioPlayer.pause();
+        }
+        return;
+      }
+
+      showNotification(`⚠️ Audio not linked for "${selectedTrack ? selectedTrack.name : 'track'}". Drag WAV here or link file.`);
+      openMatchOverviewModal();
+    }
+
+    function playDecodedAudio(offset = 0) {
+      const ctx = getAudioContext();
+      if (!currentDecodedBuffer) return;
+
+      stopAudioBufferPlayback();
+
+      const source = ctx.createBufferSource();
+      source.buffer = currentDecodedBuffer;
+      source.playbackRate.value = 1.0 + (currentPitchPct / 100);
+      source.connect(getMasterGainNode());
+
+      source.onended = () => {
+        if (isBufferPlaying && currentTime >= trackDuration - 0.5) {
+          stopAudioBufferPlayback();
+          currentTime = 0;
+          updateTimeReadout();
+          drawWaveform();
+        }
+      };
+
+      bufferPlaybackStartTime = ctx.currentTime - offset;
+      bufferPauseOffset = offset;
+      source.start(0, offset);
+
+      activeBufferSourceNode = source;
+      isBufferPlaying = true;
+      isPlaying = true;
+      updatePlayButtonUI(true);
+    }
+
+    function pauseDecodedAudio() {
+      if (activeBufferSourceNode) {
+        try {
+          activeBufferSourceNode.stop();
+          activeBufferSourceNode.disconnect();
+        } catch(e) {}
+        activeBufferSourceNode = null;
+      }
+      isBufferPlaying = false;
+      isPlaying = false;
+      updatePlayButtonUI(false);
+    }
+
+    function stopAudioBufferPlayback() {
+      if (activeBufferSourceNode) {
+        try {
+          activeBufferSourceNode.stop();
+          activeBufferSourceNode.disconnect();
+        } catch(e) {}
+        activeBufferSourceNode = null;
+      }
+      isBufferPlaying = false;
+      isPlaying = false;
+      updatePlayButtonUI(false);
+    }
+
+    function cueTrack() {
+      currentTime = 0;
+      bufferPauseOffset = 0;
+      stopAudioBufferPlayback();
+      if (audioPlayer) {
+        audioPlayer.currentTime = 0;
+        audioPlayer.pause();
+      }
+      drawWaveform();
+      updateTimeReadout();
+    }
+
+    function updatePlayButtonUI(playing) {
+      const playIcon = document.getElementById('playIcon');
+      const pauseIcon = document.getElementById('pauseIcon');
+      if (playing) {
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'inline';
+      } else {
+        playIcon.style.display = 'inline';
+        pauseIcon.style.display = 'none';
+      }
+    }
+
+
+    // Mobile Touch Scrubbing & Tab Navigation
+    function setupWaveformTouchControls() {
+      const wrapper = document.getElementById('waveformWrapper');
+      if (!wrapper) return;
+
+      function handleTouch(e) {
+        if (!e.touches || e.touches.length === 0) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const rect = wrapper.getBoundingClientRect();
+        const touchX = touch.clientX - rect.left;
+        const pct = Math.max(0, Math.min(1, touchX / rect.width));
+        const newTime = pct * trackDuration;
+
+        currentTime = newTime;
+        bufferPauseOffset = newTime;
+
+        if (isBufferPlaying) {
+          playDecodedAudio(newTime);
+        } else if (audioPlayer && audioPlayer.src) {
+          audioPlayer.currentTime = newTime;
+        }
+        drawWaveform();
+        updateTimeReadout();
+      }
+
+      wrapper.addEventListener('touchstart', handleTouch, { passive: false });
+      wrapper.addEventListener('touchmove', handleTouch, { passive: false });
+    }
+
+    function switchMobileTab(tab) {
+      if (window.innerWidth > 768) return; // Desktop uses side-by-side
+
+      const colLeft = document.querySelector('.workspace-grid > .w95-window');
+      const inspectorDetails = document.querySelector('.inspector-panel > .w95-window:first-child');
+      const theoryBox = document.getElementById('theoryBox');
+      const blendsBox = document.getElementById('blendsSection');
+
+      const btnTracks = document.getElementById('mobTabTracks');
+      const btnInsp = document.getElementById('mobTabInspector');
+      const btnBlends = document.getElementById('mobTabBlends');
+
+      [btnTracks, btnInsp, btnBlends].forEach(b => { if (b) b.className = 'btn-w95 btn-sm'; });
+
+      if (tab === 'tracks') {
+        if (colLeft) colLeft.style.display = 'block';
+        if (inspectorDetails) inspectorDetails.style.display = 'none';
+        if (theoryBox) theoryBox.style.display = 'none';
+        if (blendsBox) blendsBox.style.display = 'none';
+        if (btnTracks) btnTracks.className = 'btn-w95 btn-cyan btn-sm';
+      } else if (tab === 'inspector') {
+        if (colLeft) colLeft.style.display = 'none';
+        if (inspectorDetails) inspectorDetails.style.display = 'block';
+        if (theoryBox) theoryBox.style.display = selectedTrack ? 'block' : 'none';
+        if (blendsBox) blendsBox.style.display = 'none';
+        if (btnInsp) btnInsp.className = 'btn-w95 btn-cyan btn-sm';
+      } else if (tab === 'blends') {
+        if (colLeft) colLeft.style.display = 'none';
+        if (inspectorDetails) inspectorDetails.style.display = 'none';
+        if (theoryBox) theoryBox.style.display = 'none';
+        if (blendsBox) blendsBox.style.display = 'block';
+        if (btnBlends) btnBlends.className = 'btn-w95 btn-cyan btn-sm';
+      }
+    }
+
+    function setupAudioListeners() {
+      audioPlayer.addEventListener('timeupdate', () => {
+        if (!isBufferPlaying) {
+          currentTime = audioPlayer.currentTime;
+          if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
+            trackDuration = audioPlayer.duration;
+          }
+          updateTimeReadout();
+          checkLoop();
+          drawWaveform();
+        }
+      });
+      audioPlayer.addEventListener('play', () => { isPlaying = true; updatePlayButtonUI(true); });
+      audioPlayer.addEventListener('pause', () => { if (!isBufferPlaying) { isPlaying = false; updatePlayButtonUI(false); } });
+    }
+
+    function toggleLoop(bars) {
+      if (!selectedTrack) return;
+      const bpm = selectedTrack.bpm;
+      const secPerBeat = 60 / bpm;
+      const loopLen = secPerBeat * 4 * bars;
+
+      if (activeLoop && activeLoop.bars === bars) {
+        activeLoop = null;
+        document.getElementById('loop4Btn').classList.remove('btn-green');
+        document.getElementById('loop8Btn').classList.remove('btn-green');
+      } else {
+        activeLoop = { start: currentTime, end: currentTime + loopLen, bars };
+        document.getElementById('loop4Btn').classList.toggle('btn-green', bars === 4);
+        document.getElementById('loop8Btn').classList.toggle('btn-green', bars === 8);
+      }
+    }
+
+    function checkLoop() {
+      if (activeLoop && currentTime >= activeLoop.end) {
+        currentTime = activeLoop.start;
+        if (isBufferPlaying) {
+          playDecodedAudio(activeLoop.start);
+        } else if (audioPlayer && audioPlayer.src) {
+          audioPlayer.currentTime = activeLoop.start;
+        }
+      }
+    }
+
+    function handleWaveformSeek(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pct = clickX / rect.width;
+      const newTime = pct * trackDuration;
+
+      currentTime = newTime;
+      bufferPauseOffset = newTime;
+
+      if (isBufferPlaying) {
+        playDecodedAudio(newTime);
+      } else if (audioPlayer && audioPlayer.src) {
+        audioPlayer.currentTime = newTime;
+      }
+      drawWaveform();
+      updateTimeReadout();
+    }
+
+    function onPitchChange(val) {
+      currentPitchPct = parseFloat(val);
+      const sign = currentPitchPct > 0 ? `+${currentPitchPct.toFixed(1)}%` : `${currentPitchPct.toFixed(1)}%`;
+      document.getElementById('pitchValue').textContent = sign;
+
+      if (activeBufferSourceNode) {
+        activeBufferSourceNode.playbackRate.value = 1.0 + (currentPitchPct / 100);
+      }
+      if (audioPlayer) {
+        audioPlayer.playbackRate = 1.0 + (currentPitchPct / 100);
+      }
+    }
+
+    function resetPitch() {
+      const slider = document.getElementById('pitchSlider');
+      slider.value = "0";
+      onPitchChange(0);
+
+      const btn = document.getElementById('pitchResetBtn');
+      if (btn) {
+        btn.style.boxShadow = '0 0 10px var(--matrix-green)';
+        setTimeout(() => { btn.style.boxShadow = 'none'; }, 250);
+      }
+    }
+
+    function onVolumeChange(val) {
+      currentVolume = parseFloat(val);
+      const ctx = getAudioContext();
+      if (masterGainNode) {
+        masterGainNode.gain.setValueAtTime(currentVolume, ctx.currentTime);
+      }
+      if (audioPlayer) {
+        audioPlayer.volume = currentVolume;
+      }
+      const volPct = Math.round(currentVolume * 100);
+      const readout = document.getElementById('volValue');
+      if (readout) readout.textContent = `${volPct}%`;
+    }
+
+    function updateTimeReadout() {
+      const elapMin = Math.floor(currentTime / 60);
+      const elapSec = Math.floor(currentTime % 60);
+      const elapTenth = Math.floor((currentTime % 1) * 10);
+      document.getElementById('timeElapsed').textContent = 
+        `${String(elapMin).padStart(2, '0')}:${String(elapSec).padStart(2, '0')}.${elapTenth}`;
+
+      const remain = Math.max(0, trackDuration - currentTime);
+      const remMin = Math.floor(remain / 60);
+      const remSec = Math.floor(remain % 60);
+      const remTenth = Math.floor((remain % 1) * 10);
+      document.getElementById('timeRemain').textContent = 
+        `-${String(remMin).padStart(2, '0')}:${String(remSec).padStart(2, '0')}.${remTenth}`;
+    }
+
+    // Authentic Waveform Renderer (Distinct Real Peaks vs Unlinked)
+    function drawWaveform() {
+      const canvas = document.getElementById('waveformCanvas');
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      if (rect.width <= 10 || rect.height <= 10) return; // Guard against hidden/zero canvas
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      if (canvas.width !== rect.width * dpr) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+      }
+      ctx.resetTransform();
+      ctx.scale(dpr, dpr);
+
+      const w = rect.width;
+      const h = rect.height;
+      const cy = h / 2;
+
+      ctx.fillStyle = '#04070a';
+      ctx.fillRect(0, 0, w, h);
+
+      // Baseline
+      ctx.strokeStyle = '#0f1722';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, cy);
+      ctx.lineTo(w, cy);
+      ctx.stroke();
+
+      const bpm = selectedTrack ? selectedTrack.bpm : 140.0;
+      const secPerBeat = 60 / bpm;
+      const totalBeats = Math.floor(trackDuration / secPerBeat);
+
+      // Beatgrid lines
+      ctx.lineWidth = 1;
+      for (let b = 0; b < totalBeats; b++) {
+        const beatTime = b * secPerBeat;
+        const x = (beatTime / trackDuration) * w;
+        const isBar = b % 4 === 0;
+
+        ctx.strokeStyle = isBar ? 'rgba(0, 255, 102, 0.2)' : 'rgba(255, 255, 255, 0.04)';
+        ctx.beginPath();
+        ctx.moveTo(x, isBar ? 0 : cy - 8);
+        ctx.lineTo(x, isBar ? h : cy + 8);
+        ctx.stroke();
+      }
+
+      // Real Peaks vs Unlinked Grid
+      const peaksToDraw = (selectedTrack && selectedTrack.peaks);
+
+      if (peaksToDraw && peaksToDraw.length > 0) {
+        const nBars = peaksToDraw.length;
+        const barW = w / nBars;
+
+        for (let i = 0; i < nBars; i++) {
+          const amp = peaksToDraw[i] || 0.02;
+          const barH = amp * (cy - 4);
+          const x = i * barW;
+
+          const grad = ctx.createLinearGradient(0, cy - barH, 0, cy + barH);
+
+          if (waveformColorMode === 'rgb') {
+            // Authentic Pioneer Rekordbox RGB Mode
+            // Red core = Sub-bass & Kicks (< 250Hz)
+            // Green body = Mids, Vocals, Synths (250Hz - 2.5kHz)
+            // Cyan/Blue tips = High-frequency transients & Hats (> 2.5kHz)
+            grad.addColorStop(0.0, '#0088ff');
+            grad.addColorStop(0.18, '#00f0ff');
+            grad.addColorStop(0.32, '#00ff66');
+            grad.addColorStop(0.42, '#ffaa00');
+            grad.addColorStop(0.50, '#ff2233'); // Core Bass RED
+            grad.addColorStop(0.58, '#ffaa00');
+            grad.addColorStop(0.68, '#00ff66');
+            grad.addColorStop(0.82, '#00f0ff');
+            grad.addColorStop(1.0, '#0088ff');
+          } else if (waveformColorMode === '3band') {
+            // CDJ-3000 3-Band Mode: Blue Sub, Amber Mids, White Highs
+            grad.addColorStop(0.0, '#ffffff');
+            grad.addColorStop(0.25, '#ff7700');
+            grad.addColorStop(0.50, '#0055ff');
+            grad.addColorStop(0.75, '#ff7700');
+            grad.addColorStop(1.0, '#ffffff');
+          } else {
+            // Classic CDJ-2000 Blue
+            grad.addColorStop(0.0, '#cceeff');
+            grad.addColorStop(0.40, '#3399ff');
+            grad.addColorStop(0.50, '#0044bb');
+            grad.addColorStop(0.60, '#3399ff');
+            grad.addColorStop(1.0, '#cceeff');
+          }
+
+          ctx.fillStyle = grad;
+          ctx.fillRect(x, cy - barH, Math.max(1, barW - 0.5), barH * 2);
+        }
+      } else if (isAudioDecoding) {
+        ctx.fillStyle = 'var(--cyber-cyan)';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('⏳ DECODING REAL PCM SAMPLES INTO MEMORY...', w / 2, cy);
+      } else {
+        ctx.strokeStyle = 'rgba(255, 170, 0, 0.2)';
+        ctx.setLineDash([4, 4]);
+        ctx.strokeRect(16, 12, w - 32, h - 24);
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = 'var(--winamp-amber)';
+        ctx.font = 'bold 11px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('○ REAL AUDIO FILE NOT LINKED TO THIS TRACK', w / 2, cy - 6);
+
+        ctx.fillStyle = '#62728c';
+        ctx.font = '10px monospace';
+        ctx.fillText('Drag & drop WAV/MP3 onto this deck or click [+ LINK] in table', w / 2, cy + 12);
+      }
+
+      // Loop Region
+      if (activeLoop) {
+        const x1 = (activeLoop.start / trackDuration) * w;
+        const x2 = (activeLoop.end / trackDuration) * w;
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.12)';
+        ctx.fillRect(x1, 0, x2 - x1, h);
+        ctx.strokeStyle = 'var(--matrix-green)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(x1, 0, x2 - x1, h);
+      }
+
+      // Playhead Marker
+      const playheadX = (currentTime / trackDuration) * w;
+      ctx.strokeStyle = '#ff3344';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(playheadX, 0);
+      ctx.lineTo(playheadX, h);
+      ctx.stroke();
+    }
+
+    function startWaveformAnimation() {
+      function anim() {
+        if (isBufferPlaying) {
+          const ctx = getAudioContext();
+          const elapsed = (ctx.currentTime - bufferPlaybackStartTime) * (1.0 + (currentPitchPct / 100));
+          currentTime = bufferPauseOffset + elapsed;
+          updateTimeReadout();
+          checkLoop();
+          drawWaveform();
+        }
+        requestAnimationFrame(anim);
+      }
+      requestAnimationFrame(anim);
+    }
+
+    function setupKeyboardShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        if (e.code === 'Space') {
+          e.preventDefault();
+          togglePlayPause();
+        } else if (e.code === 'KeyC') {
+          cueTrack();
+        }
+      });
+    }
+
+    // Harmonic Synthesizer
+    function playHarmonicSynth() {
+      if (!selectedTrack) return;
+      const theory = THEORY[selectedTrack.key];
+      if (!theory) return;
+
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+      const subHz = parseFloat(theory.subHz.split(' ')[0]) || 55.0;
+
+      const subOsc = ctx.createOscillator();
+      const subGain = ctx.createGain();
+      subOsc.type = 'sine';
+      subOsc.frequency.setValueAtTime(subHz, now);
+
+      subGain.gain.setValueAtTime(0.001, now);
+      subGain.gain.exponentialRampToValueAtTime(0.6 * currentVolume, now + 0.05);
+      subGain.gain.exponentialRampToValueAtTime(0.3 * currentVolume, now + 0.8);
+      subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
+
+      subOsc.connect(subGain);
+      subGain.connect(ctx.destination);
+      subOsc.start(now);
+      subOsc.stop(now + 1.8);
+
+      const triad = theory.triads[0];
+      playChordSynth(triad);
+      showNotification(`Harmonic Preview: ${selectedTrack.key} (${theory.name})`);
+    }
+
+    function playChordSynth(chordName) {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+
+      const notes = getNotesForChord(chordName);
+      notes.forEach((note) => {
+        const freq = NOTE_FREQS[note] || 220.0;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.15 * currentVolume, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.08 * currentVolume, now + 0.6);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.6);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 1.6);
+      });
+    }
+
+    function getNotesForChord(chord) {
+      const chordNotes = {
+        "Am": ["A3", "C4", "E4"], "Am7": ["A3", "C4", "E4", "G4"],
+        "C": ["C4", "E4", "G4"], "Cmaj7": ["C4", "E4", "G4", "B4"],
+        "Dm": ["D3", "F3", "A3"], "Dm7": ["D3", "F3", "A3", "C4"],
+        "Em": ["E3", "G3", "B3"], "Em7": ["E3", "G3", "B3", "D4"],
+        "F": ["F3", "A3", "C4"], "Fmaj7": ["F3", "A3", "C4", "E4"],
+        "G": ["G3", "B3", "D4"], "G7": ["G3", "B3", "D4", "F4"],
+        "Bdim": ["B3", "D4", "F4"], "Bm7b5": ["B3", "D4", "F4", "A4"],
+        "Ebm": ["Eb3", "Gb3", "Bb3"], "Ebm7": ["Eb3", "Gb3", "Bb3", "Db4"],
+        "Gb": ["Gb3", "Bb3", "Db4"], "Gbmaj7": ["Gb3", "Bb3", "Db4", "F4"],
+        "Abm": ["Ab3", "B3", "Eb4"], "Abm7": ["Ab3", "B3", "Eb4", "Gb4"],
+        "Bbm": ["Bb3", "Db4", "F4"], "Bbm7": ["Bb3", "Db4", "F4", "Ab4"],
+        "Fm": ["F3", "Ab3", "C4"], "Fm7": ["F3", "Ab3", "C4", "Eb4"],
+        "Cm": ["C3", "Eb3", "G3"], "Cm7": ["C3", "Eb3", "G3", "Bb3"],
+        "Gm": ["G3", "Bb3", "D4"], "Gm7": ["G3", "Bb3", "D4", "F4"],
+        "Bm": ["B3", "D4", "F#4"], "Bm7": ["B3", "D4", "F#4", "A4"],
+        "F#m": ["F#3", "A3", "C#4"], "F#m7": ["F#3", "A3", "C#4", "E4"],
+        "C#m": ["C#3", "E3", "G#3"], "C#m7": ["C#3", "E3", "G#3", "B3"]
+      };
+
+      if (chordNotes[chord]) return chordNotes[chord];
+      return ["A3", "C4", "E4"];
+    }
+
+    // Blend Matching Engine
+    function calculateBlend(trackA, trackB) {
+      const bpmA = trackA.bpm;
+      const bpmB = trackB.bpm;
+      const keyA = trackA.key;
+      const keyB = trackB.key;
+
+      const diffDirect = Math.abs(bpmB - bpmA) / bpmA;
+      const diffHalf = Math.abs(bpmB * 2 - bpmA) / bpmA;
+      const diffDouble = Math.abs(bpmB / 2 - bpmA) / bpmA;
+
+      let tempoType = "Direct Match";
+      let pitchShiftPct = 0;
+      let effectiveBpm = bpmB;
+      let minDiff = diffDirect;
+
+      if (diffHalf < minDiff && diffHalf < 0.15) {
+        minDiff = diffHalf;
+        tempoType = "Halftime Blend (2x)";
+        pitchShiftPct = ((bpmA - bpmB * 2) / (bpmB * 2)) * 100;
+        effectiveBpm = bpmB * 2;
+      } else if (diffDouble < minDiff && diffDouble < 0.15) {
+        minDiff = diffDouble;
+        tempoType = "Doubletime Blend (0.5x)";
+        pitchShiftPct = ((bpmA - bpmB / 2) / (bpmB / 2)) * 100;
+        effectiveBpm = bpmB / 2;
+      } else {
+        tempoType = "Direct Match";
+        pitchShiftPct = ((bpmA - bpmB) / bpmB) * 100;
+        effectiveBpm = bpmB;
+      }
+
+      let keyScore = 20;
+      let relType = "Distant Key";
+      let relCategory = "distant";
+
+      if (keyA && keyB) {
+        const numA = parseInt(keyA);
+        const letterA = keyA.slice(-1);
+        const numB = parseInt(keyB);
+        const letterB = keyB.slice(-1);
+
+        let diffWheel = (numB - numA) % 12;
+        if (diffWheel > 6) diffWheel -= 12;
+        if (diffWheel < -6) diffWheel += 12;
+
+        if (keyA === keyB) {
+          keyScore = 100;
+          relType = "Exact Key Match";
+          relCategory = "exact";
+        } else if (letterA === letterB && diffWheel === 1) {
+          keyScore = 95;
+          relType = "+1 Fifth (Ascending)";
+          relCategory = "fifths";
+        } else if (letterA === letterB && diffWheel === -1) {
+          keyScore = 95;
+          relType = "-1 Fourth (Descending)";
+          relCategory = "fifths";
+        } else if (numA === numB && letterA !== letterB) {
+          keyScore = 90;
+          relType = "Relative Maj/Min (A/B)";
+          relCategory = "swap";
+        } else if (letterA !== letterB && diffWheel === 1) {
+          keyScore = 85;
+          relType = "Diagonal +1 Shift";
+          relCategory = "fifths";
+        } else if (letterA !== letterB && diffWheel === -1) {
+          keyScore = 80;
+          relType = "Diagonal -1 Shift";
+          relCategory = "fifths";
+        } else if (letterA === letterB && diffWheel === 2) {
+          keyScore = 75;
+          relType = "+2 Energy Boost";
+          relCategory = "boost";
+        } else if (letterA === letterB && diffWheel === -2) {
+          keyScore = 70;
+          relType = "-2 Energy Drop";
+          relCategory = "boost";
+        }
+      }
+
+      const absPitch = Math.abs(pitchShiftPct);
+      const bpmScore = Math.max(0, 100 - (absPitch * 7.5));
+      const totalScore = Math.round(keyScore * 0.6 + bpmScore * 0.4);
+
+      return {
+        targetTrack: trackB,
+        totalScore,
+        keyScore,
+        relType,
+        relCategory,
+        tempoType,
+        pitchShiftPct: Math.round(pitchShiftPct * 10) / 10,
+        effectiveBpm: Math.round(effectiveBpm * 10) / 10,
+        absPitch
+      };
+    }
+
+    function setBlendFilter(filter) {
+      blendFilter = filter;
+      document.querySelectorAll('.blend-tab').forEach(t => t.classList.remove('active'));
+      event.target.classList.add('active');
+      renderBlendCandidates();
+    }
+
+    function renderBlendCandidates() {
+      if (!selectedTrack) return;
+      const listEl = document.getElementById('blendList');
+
+      const candidates = [];
+      libraryTracks.forEach(t => {
+        if (t.id === selectedTrack.id) return;
+        const analysis = calculateBlend(selectedTrack, t);
+        if (analysis.absPitch <= 12 || analysis.keyScore >= 80) {
+          candidates.push(analysis);
+        }
+      });
+
+      let filtered = candidates;
+      if (blendFilter === 'exact') filtered = candidates.filter(c => c.relCategory === 'exact');
+      else if (blendFilter === 'fifths') filtered = candidates.filter(c => c.relCategory === 'fifths');
+      else if (blendFilter === 'swap') filtered = candidates.filter(c => c.relCategory === 'swap');
+      else if (blendFilter === 'boost') filtered = candidates.filter(c => c.relCategory === 'boost');
+      else if (blendFilter === 'halftime') filtered = candidates.filter(c => c.tempoType.includes('Halftime') || c.tempoType.includes('Doubletime'));
+
+      filtered.sort((a, b) => b.totalScore - a.totalScore);
+      document.getElementById('blendCandidateCount').textContent = filtered.length;
+      const mobCount = document.getElementById('mobBlendCount');
+      if (mobCount) mobCount.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `<div class="empty-state">No matching blend candidates found.</div>`;
+        return;
+      }
+
+      listEl.innerHTML = filtered.slice(0, 15).map(c => {
+        const t = c.targetTrack;
+        const keyNum = parseInt(t.key) || 1;
+        const pitchSign = c.pitchShiftPct > 0 ? `+${c.pitchShiftPct}%` : `${c.pitchShiftPct}%`;
+
+        return `
+          <div class="blend-card">
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+              <div style="font-weight: 700; font-family: var(--font-mono); color: #fff; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${escapeHtml(t.name)}
+              </div>
+              <span style="font-family: var(--font-mono); font-weight: 700; color: var(--matrix-green); font-size: 11px;">
+                ${c.totalScore}%
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: var(--text-dim); font-family: var(--font-mono);">
+              <div>
+                <span class="badge-key key-${keyNum}" style="padding: 1px 4px; font-size: 9px;">${t.key}</span>
+                <span style="margin-left: 4px;">${c.relType}</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span style="color: var(--cyber-cyan);">${pitchSign}</span>
+                <button class="btn-w95 btn-sm" onclick="openCompareModal('${t.id}')">Diff</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openCompareModal(targetTrackId) {
+      const trackB = libraryTracks.find(t => t.id === targetTrackId);
+      if (!trackB || !selectedTrack) return;
+
+      const trackA = selectedTrack;
+      const analysis = calculateBlend(trackA, trackB);
+
+      document.getElementById('cmpTitleA').textContent = trackA.name;
+      document.getElementById('cmpArtistA').textContent = trackA.artist;
+      document.getElementById('cmpBpmA').textContent = `${trackA.bpm.toFixed(1)} BPM`;
+      const keyNumA = parseInt(trackA.key) || 1;
+      const keyElA = document.getElementById('cmpKeyA');
+      keyElA.textContent = trackA.key;
+      keyElA.className = `badge-key key-${keyNumA}`;
+
+      document.getElementById('cmpTitleB').textContent = trackB.name;
+      document.getElementById('cmpArtistB').textContent = trackB.artist;
+      document.getElementById('cmpBpmB').textContent = `${trackB.bpm.toFixed(1)} BPM`;
+      const keyNumB = parseInt(trackB.key) || 1;
+      const keyElB = document.getElementById('cmpKeyB');
+      keyElB.textContent = trackB.key;
+      keyElB.className = `badge-key key-${keyNumB}`;
+
+      document.getElementById('cmpMatchScore').textContent = `${analysis.totalScore}% SYNC`;
+      document.getElementById('cmpKeyRel').textContent = `${analysis.relType} (${trackA.key} ➔ ${trackB.key})`;
+
+      const bpmDelta = (trackB.bpm - trackA.bpm).toFixed(1);
+      const bpmSign = bpmDelta > 0 ? `+${bpmDelta}` : bpmDelta;
+      document.getElementById('cmpBpmDiff').textContent = `${bpmSign} BPM (${analysis.tempoType})`;
+
+      const pitchSign = analysis.pitchShiftPct > 0 ? `+${analysis.pitchShiftPct}%` : `${analysis.pitchShiftPct}%`;
+      document.getElementById('cmpPitchFader').textContent = `Set Deck B pitch fader to ${pitchSign}`;
+
+      let strategy = "Long 32-bar blend: High-pass Deck B during build, then execute clean bass swap at Bar 17 downbeat.";
+      if (analysis.tempoType.includes('Halftime')) {
+        strategy = "Halftime drop-swap: Let Track A ride to the drop, then cut to Deck B on the one to shock the crowd with half-time sub pressure.";
+      }
+      document.getElementById('cmpStrategyText').textContent = strategy;
+
+      document.getElementById('compareModal').classList.add('open');
+    }
+
+    function closeCompareModal() {
+      document.getElementById('compareModal').classList.remove('open');
+    }
+
+    function openArtistDossier(artistName) {
+      document.getElementById('searchInput').value = artistName;
+      renderTable();
+      showNotification(`Filtered collection by artist: ${artistName}`);
+    }
+
+    function openLabelDossier(labelName) {
+      if (!labelName) return;
+      document.getElementById('searchInput').value = labelName;
+      renderTable();
+      showNotification(`Filtered collection by label: ${labelName}`);
+    }
+
+    function addToSetlist(trackId) {
+      const track = libraryTracks.find(t => t.id === trackId);
+      if (!track) return;
+      setlist.push(track);
+      document.getElementById('queueCount').textContent = setlist.length;
+      showNotification(`Added "${track.name}" to live setlist queue!`);
+    }
+
+    function openSetlistModal() {
+      const flowEl = document.getElementById('setlistFlow');
+      if (setlist.length === 0) {
+        flowEl.innerHTML = `<div class="empty-state">No tracks staged in live queue. Click "+ Set" on any track to add it.</div>`;
+      } else {
+        let html = '';
+        setlist.forEach((track, idx) => {
+          const keyNum = parseInt(track.key) || 1;
+          html += `
+            <div class="w95-inset" style="padding: 8px 12px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px;">
+              <div>
+                <span style="color: var(--cyber-cyan); font-weight: 700;">#${idx + 1}</span>
+                <strong style="color: #fff; margin-left: 6px;">${escapeHtml(track.name)}</strong>
+                <span style="color: var(--text-dim); margin-left: 4px;">— ${escapeHtml(track.artist)}</span>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span class="badge-key key-${keyNum}">${track.key}</span>
+                <span class="badge-bpm">${track.bpm.toFixed(1)}</span>
+                <button class="btn-w95 btn-sm" onclick="removeFromSetlist(${idx})">X</button>
+              </div>
+            </div>
+          `;
+
+          if (idx < setlist.length - 1) {
+            const nextTrack = setlist[idx + 1];
+            const blend = calculateBlend(track, nextTrack);
+            let color = 'var(--matrix-green)';
+            if (blend.totalScore < 80) color = 'var(--winamp-amber)';
+            if (blend.totalScore < 60) color = 'var(--winamp-red)';
+
+            html += `
+              <div style="padding: 2px 14px; font-size: 10px; font-family: var(--font-mono); color: ${color};">
+                ↓ ${blend.totalScore}% Compatibility • ${blend.relType} • ${blend.pitchShiftPct}% Pitch
+              </div>
+            `;
+          }
+        });
+        flowEl.innerHTML = html;
+      }
+
+      document.getElementById('setlistModal').classList.add('open');
+    }
+
+    function removeFromSetlist(idx) {
+      setlist.splice(idx, 1);
+      document.getElementById('queueCount').textContent = setlist.length;
+      openSetlistModal();
+    }
+
+    function clearSetlist() {
+      setlist = [];
+      document.getElementById('queueCount').textContent = 0;
+      openSetlistModal();
+    }
+
+    function exportSetlistM3U() {
+      if (setlist.length === 0) return;
+      let m3u = "#EXTM3U\n";
+      setlist.forEach(t => {
+        m3u += `#EXTINF:${t.duration || 240},${t.artist} - ${t.name}\n`;
+        m3u += `${t.artist} - ${t.name}.wav\n`;
+      });
+      const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Winamp_Rekordbox_Setlist.m3u';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function closeSetlistModal() {
+      document.getElementById('setlistModal').classList.remove('open');
+    }
+
+    // Match Overview Modal Controller
+    let currentMatchTab = 'matched';
+
+    function openMatchOverviewModal() {
+      switchMatchTab(currentMatchTab);
+      document.getElementById('matchOverviewModal').classList.add('open');
+    }
+
+    function closeMatchOverviewModal() {
+      document.getElementById('matchOverviewModal').classList.remove('open');
+    }
+
+    function switchMatchTab(tab) {
+      currentMatchTab = tab;
+      const tabMatchedBtn = document.getElementById('tabMatchedBtn');
+      const tabMissingBtn = document.getElementById('tabMissingBtn');
+
+      if (tab === 'matched') {
+        tabMatchedBtn.className = 'btn-w95 btn-green btn-sm';
+        tabMissingBtn.className = 'btn-w95 btn-sm';
+      } else {
+        tabMatchedBtn.className = 'btn-w95 btn-sm';
+        tabMissingBtn.className = 'btn-w95 btn-amber btn-sm';
+      }
+
+      const matchedList = libraryTracks.filter(t => !!t.assignedAudioFile || t.location === 'demo_sub_140.wav');
+      const missingList = libraryTracks.filter(t => !t.assignedAudioFile && t.location !== 'demo_sub_140.wav');
+
+      document.getElementById('matchedCountTab').textContent = matchedList.length;
+      document.getElementById('missingCountTab').textContent = missingList.length;
+
+      const listToRender = tab === 'matched' ? matchedList : missingList;
+      const tbody = document.getElementById('matchOverviewTbody');
+
+      if (listToRender.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="empty-state">${tab === 'matched' ? 'No tracks matched yet. Link your music folder above!' : 'All tracks in your library have real audio matched!'}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = listToRender.map(t => {
+        const expected = extractFilenameFromLocation(t.location) || `${t.name}.wav`;
+        const actual = t.assignedAudioFile ? t.assignedAudioFile.name : (t.location === 'demo_sub_140.wav' ? 'demo_sub_140.wav' : 'None (Missing)');
+        const isMatched = !!t.assignedAudioFile || t.location === 'demo_sub_140.wav';
+
+        return `
+          <tr>
+            <td style="font-weight: 700; color: #fff;">${escapeHtml(t.name)}</td>
+            <td>${escapeHtml(t.artist)}</td>
+            <td>
+              <span style="font-family: var(--font-mono); font-size: 11px; color: ${isMatched ? 'var(--matrix-green)' : 'var(--winamp-amber)'};">
+                ${isMatched ? '● ' + escapeHtml(actual) : 'Expected: ' + escapeHtml(expected)}
+              </span>
+            </td>
+            <td>
+              ${isMatched ? 
+                `<button class="btn-w95 btn-green btn-sm" onclick="closeMatchOverviewModal(); selectTrackById('${t.id}'); playTrack();">▶ Play</button>` : 
+                `<button class="btn-w95 btn-sm" onclick="document.getElementById('singleAudioInput').click()">📂 Link</button>`
+              }
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function showNotification(msg) {
+      const banner = document.getElementById('toastBanner');
+      const text = document.getElementById('toastMessage');
+      if (banner && text) {
+        text.textContent = msg;
+        banner.style.display = 'flex';
+        setTimeout(() => { banner.style.display = 'none'; }, 6000);
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
