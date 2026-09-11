@@ -983,11 +983,20 @@
         <span class="audio-badge badge-standby" id="audioSourceBadge">STANDBY PREVIEW</span>
       </div>
 
-      <!-- Winamp LCD Display -->
+      <!-- Winamp LCD Display with Real-Time Spectrum Visualizer -->
       <div class="lcd-screen">
         <div class="lcd-title-group">
           <div class="lcd-track-title" id="deckTrackTitle">SELECT A TRACK</div>
           <div class="lcd-track-meta" id="deckTrackArtist">44.1 KHZ • 16-BIT STEREO PCM</div>
+        </div>
+
+        <!-- Real-Time FFT Spectrum Visualizer (Winamp Style) -->
+        <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;" onclick="toggleVisualizerMode()" title="Click to cycle visualizer mode: Spectrum Bars / Oscilloscope / Fire Spectrum">
+          <canvas id="spectrumCanvas" width="160" height="38" style="background: #020406; border: 1px solid rgba(0, 255, 102, 0.25); display: block;"></canvas>
+          <div style="font-family: var(--font-mono); font-size: 9px; color: var(--matrix-green); line-height: 1.1; display: flex; flex-direction: column;">
+            <span id="visModeLabel">BARS</span>
+            <span style="color: var(--text-dim);">FFT</span>
+          </div>
         </div>
 
         <div class="lcd-clock-group">
@@ -1091,6 +1100,14 @@
             <input type="text" id="searchInput" placeholder="SEARCH TITLE, ARTIST, GENRE, LABEL, KEY, BPM..." />
           </div>
           <div class="filter-group">
+            <select class="filter-select" id="storageFilter" title="Filter by audio file presence or drive origin">
+              <option value="">All Tracks in Database</option>
+              <option value="linked">🟢 Audio on This PC (Matched)</option>
+              <option value="missing">⚠️ Missing / Other PCs</option>
+              <option value="c">Drive C:\</option>
+              <option value="d">Drive D:\</option>
+              <option value="other">Other Drives / USB / Mac</option>
+            </select>
             <select class="filter-select" id="genreFilter"><option value="">All Genres</option></select>
             <select class="filter-select" id="keyFilter"><option value="">All Keys</option></select>
             <select class="filter-select" id="tempoFilter">
@@ -1643,12 +1660,154 @@
       return audioCtx;
     }
 
+    // Web Audio AnalyserNode (Real-Time Spectrum Visualizer)
+    let analyserNode = null;
+    let visualizerMode = 'bars'; // 'bars', 'oscilloscope', 'fire'
+    const peakHoldCaps = new Array(16).fill(0);
+    const peakDecaySpeed = 0.65;
+
+    function getAnalyserNode() {
+      const ctx = getAudioContext();
+      if (!analyserNode) {
+        analyserNode = ctx.createAnalyser();
+        analyserNode.fftSize = 128; // 64 frequency bins
+        analyserNode.smoothingTimeConstant = 0.8;
+      }
+      return analyserNode;
+    }
+
+    function toggleVisualizerMode() {
+      if (visualizerMode === 'bars') {
+        visualizerMode = 'oscilloscope';
+      } else if (visualizerMode === 'oscilloscope') {
+        visualizerMode = 'fire';
+      } else {
+        visualizerMode = 'bars';
+      }
+      const label = document.getElementById('visModeLabel');
+      if (label) label.textContent = visualizerMode.toUpperCase().slice(0, 4);
+      showNotification(`Visualizer Mode: ${visualizerMode.toUpperCase()}`);
+    }
+
+    function drawSpectrumVisualizer() {
+      const canvas = document.getElementById('spectrumCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width;
+      const h = canvas.height;
+
+      ctx.fillStyle = '#020406';
+      ctx.fillRect(0, 0, w, h);
+
+      // Baseline grid
+      ctx.strokeStyle = 'rgba(0, 255, 102, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, h - 1);
+      ctx.lineTo(w, h - 1);
+      ctx.stroke();
+
+      if (!analyserNode) {
+        // Standby idle pattern (gentle matrix dots)
+        ctx.fillStyle = 'rgba(0, 255, 102, 0.2)';
+        for (let i = 0; i < 16; i++) {
+          const x = i * 10 + 2;
+          ctx.fillRect(x, h - 4, 7, 2);
+        }
+        return;
+      }
+
+      if (visualizerMode === 'oscilloscope') {
+        // CRT Oscilloscope Mode
+        const timeData = new Uint8Array(analyserNode.frequencyBinCount);
+        analyserNode.getByteTimeDomainData(timeData);
+
+        ctx.strokeStyle = isBufferPlaying || isPlaying ? '#00ff66' : 'rgba(0, 255, 102, 0.3)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+
+        const sliceW = w / timeData.length;
+        let x = 0;
+
+        for (let i = 0; i < timeData.length; i++) {
+          const v = timeData[i] / 128.0;
+          const y = (v * h) / 2;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          x += sliceW;
+        }
+        ctx.stroke();
+        return;
+      }
+
+      // Spectrum Bars & Fire Modes (16 Logarithmic Bands)
+      const freqData = new Uint8Array(analyserNode.frequencyBinCount);
+      analyserNode.getByteFrequencyData(freqData);
+
+      const numBars = 16;
+      const barW = (w - (numBars * 2)) / numBars;
+      const binStep = Math.floor(freqData.length / numBars);
+
+      for (let i = 0; i < numBars; i++) {
+        // Logarithmic frequency weighting
+        const startBin = Math.floor(Math.pow(i / numBars, 1.4) * (freqData.length - 2));
+        const endBin = Math.min(freqData.length - 1, startBin + 2);
+        let maxVal = 0;
+        for (let b = startBin; b <= endBin; b++) {
+          if (freqData[b] > maxVal) maxVal = freqData[b];
+        }
+
+        // Scale to canvas height
+        const norm = maxVal / 255.0;
+        const barH = norm * (h - 4);
+        const x = i * (barW + 2) + 2;
+        const y = h - barH;
+
+        // Falling Peak Hold Cap
+        if (norm * h > peakHoldCaps[i]) {
+          peakHoldCaps[i] = norm * h;
+        } else {
+          peakHoldCaps[i] = Math.max(0, peakHoldCaps[i] - peakDecaySpeed);
+        }
+
+        // Draw segmented LED blocks
+        const segmentHeight = 3;
+        const numSegments = Math.floor(barH / (segmentHeight + 1));
+
+        for (let s = 0; s < numSegments; s++) {
+          const segY = h - (s * (segmentHeight + 1)) - segmentHeight;
+          const segNorm = s / (h / (segmentHeight + 1));
+
+          if (visualizerMode === 'fire') {
+            // Neon Fire palette
+            if (segNorm > 0.75) ctx.fillStyle = '#ff2244';
+            else if (segNorm > 0.45) ctx.fillStyle = '#ff8800';
+            else ctx.fillStyle = '#ffea00';
+          } else {
+            // Classic Winamp 2.x green-to-red palette
+            if (segNorm > 0.8) ctx.fillStyle = '#ff3344';
+            else if (segNorm > 0.6) ctx.fillStyle = '#ffaa00';
+            else ctx.fillStyle = '#00ff66';
+          }
+
+          ctx.fillRect(x, segY, barW, segmentHeight);
+        }
+
+        // Draw Peak Cap Line
+        if (peakHoldCaps[i] > 2) {
+          const capY = h - peakHoldCaps[i];
+          ctx.fillStyle = visualizerMode === 'fire' ? '#ffffff' : '#00f0ff';
+          ctx.fillRect(x, capY, barW, 1.5);
+        }
+      }
+    }
+
     function getMasterGainNode() {
       const ctx = getAudioContext();
       if (!masterGainNode) {
         masterGainNode = ctx.createGain();
         masterGainNode.gain.setValueAtTime(currentVolume, ctx.currentTime);
-        masterGainNode.connect(ctx.destination);
+        masterGainNode.connect(getAnalyserNode()); getAnalyserNode().connect(ctx.destination);
       }
       return masterGainNode;
     }
@@ -2204,9 +2363,10 @@
       const genreFilter = document.getElementById('genreFilter');
       const keyFilter = document.getElementById('keyFilter');
       const tempoFilter = document.getElementById('tempoFilter');
+      const storageFilter = document.getElementById('storageFilter');
 
-      [searchInput, genreFilter, keyFilter, tempoFilter].forEach(el => {
-        el.addEventListener('input', renderTable);
+      [searchInput, genreFilter, keyFilter, tempoFilter, storageFilter].forEach(el => {
+        if (el) el.addEventListener('input', renderTable);
       });
     }
 
@@ -2216,6 +2376,8 @@
       const k = document.getElementById('keyFilter').value;
       const tempo = document.getElementById('tempoFilter').value;
 
+      const storage = document.getElementById('storageFilter') ? document.getElementById('storageFilter').value : '';
+
       return libraryTracks.filter(t => {
         if (q) {
           const match = t.name.toLowerCase().includes(q) ||
@@ -2223,11 +2385,22 @@
                         (t.label && t.label.toLowerCase().includes(q)) ||
                         (t.genre && t.genre.toLowerCase().includes(q)) ||
                         t.key.toLowerCase().includes(q) ||
+                        (t.location && t.location.toLowerCase().includes(q)) ||
                         String(t.bpm).includes(q);
           if (!match) return false;
         }
         if (g && t.genre !== g) return false;
         if (k && t.key !== k) return false;
+
+        if (storage) {
+          const hasAudio = !!t.assignedAudioFile || t.location === 'demo_sub_140.wav';
+          const locLower = (t.location || '').toLowerCase();
+          if (storage === 'linked' && !hasAudio) return false;
+          if (storage === 'missing' && hasAudio) return false;
+          if (storage === 'c' && !locLower.includes('/c:') && !locLower.includes('\\c:')) return false;
+          if (storage === 'd' && !locLower.includes('/d:') && !locLower.includes('\\d:')) return false;
+          if (storage === 'other' && (locLower.includes('/c:') || locLower.includes('/d:'))) return false;
+        }
         if (tempo) {
           if (tempo === 'halftime' && (t.bpm < 60 || t.bpm > 95)) return false;
           if (tempo === 'house' && (t.bpm < 120 || t.bpm > 132)) return false;
@@ -3235,6 +3408,7 @@
           checkLoop();
           drawWaveform();
         }
+        drawSpectrumVisualizer();
         requestAnimationFrame(anim);
       }
       requestAnimationFrame(anim);
@@ -3273,7 +3447,7 @@
       subGain.gain.exponentialRampToValueAtTime(0.001, now + 1.8);
 
       subOsc.connect(subGain);
-      subGain.connect(ctx.destination);
+      subGain.connect(getAnalyserNode()); getAnalyserNode().connect(ctx.destination);
       subOsc.start(now);
       subOsc.stop(now + 1.8);
 
