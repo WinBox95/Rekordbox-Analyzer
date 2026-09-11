@@ -1618,7 +1618,7 @@
     const localAudioFilesMap = new Map();
 
     const DEMO_DATA = [
-      { id: "1", name: "Subterranean Drift", artist: "Vetch", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Innamind Recordings", year: 2025, duration: 324, location: "demo_sub_140.wav" },
+      { id: "1", name: "Subterranean Drift (VIP Demo)", artist: "Vetch", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Innamind Recordings", year: 2025, duration: 41, location: "demo_sub_140.wav" },
       { id: "2", name: "Obsidian Bell", artist: "Vetch", bpm: 140.0, key: "8A", genre: "Deep Dubstep", label: "Innamind Recordings", year: 2025, duration: 298, location: "demo_sub_140.wav" },
       { id: "3", name: "Spinal Tap", artist: "Kahn & Neek", bpm: 139.0, key: "7A", genre: "Deep Dubstep", label: "Deep Medi Musik", year: 2023, duration: 312, location: "demo_sub_140.wav" },
       { id: "4", name: "Midnight Marauder", artist: "Mala", bpm: 140.0, key: "9A", genre: "Dubstep", label: "Deep Medi Musik", year: 2022, duration: 345, location: "demo_sub_140.wav" },
@@ -2615,8 +2615,15 @@
 
       if (track.location === 'demo_sub_140.wav') {
         badge.className = 'audio-badge badge-real';
-        badge.textContent = '● DEMO SUB-140';
-        fetchAndDecodeStream(track, 'demo_sub_140.wav');
+        badge.textContent = '● DEMO TUNE (SUBTERRANEAN VIP)';
+        const ctx = getAudioContext();
+        const demoBuf = getOrGenerateDemoTrackBuffer(ctx);
+        track.decodedBuffer = demoBuf;
+        track.peaks = extractPeaks(demoBuf);
+        currentDecodedBuffer = demoBuf;
+        trackDuration = demoBuf.duration;
+        drawWaveform();
+        updateTimeReadout();
         return;
       }
 
